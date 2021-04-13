@@ -1,3 +1,5 @@
+import {removeItemFromArray, returnList, addItemToArray} from "./index.js"
+
 //Default project / todo for initial display
 
 let dummyProj = {
@@ -13,6 +15,7 @@ let dummyObj = {
     priority: "nuclear", 
     notes: "gotta finish this!",
 }
+
 
 //factory function to generate new projects 
 

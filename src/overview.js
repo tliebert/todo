@@ -1,3 +1,5 @@
+import {removeItemFromArray, returnList, addItemToArray} from "./index.js"
+
 function projectsFolder() {
     let projectsList = []
 
@@ -9,7 +11,16 @@ function projectsFolder() {
         projectsList.push(project)
     }
 
-    return {returnListOfProjects, addProjectToList}
+    function removeProject(project) {
+            let id = projectsList["title"]
+            let index = items.indexOf(id)
+            projectsList.splice(index, 1)
+    }
+        
+
+    return {returnListOfProjects, addProjectToList, removeProject}
 }
+
+
 
 export { projectsFolder } 

@@ -20,19 +20,25 @@ let dummyProj = {
     items: [dummyObj, dummyObj2],
 }
 
-function makeToDoNodes(listArray) {
-    let nodes = listArray.map(makeNode)
+// Node creation at ToDo, Project, and Folder (all projects) level 
 
-    function makeNode(toDoObject) {
-        let container = document.createElement("div");
-        for (key in toDoObject) {
-            let listItem = document.createElement("li")
-            listItem.textContent = toDoObject[key]
-            container.appendChild(listItem)
-        }
-        return container
+function makeToDoItemNode(toDoItem) {
+        let listItem = document.createElement("li")
+        listItem.textContent = toDoItem;
+        return listItem
+}
+
+function makeToDoObjectNode(toDoObject) {
+    let toDoContainer = document.createElement("div");
+    for (key in toDoObject) {
+        toDoContainer.appendChild(makeToDoItemNode(toDoObject[key]))
     }
-    return nodes
+    return toDoContainer
+}
+
+function makeToDoObjectsFromArray(listArray) {
+    let nodes = listArray.map(makeToDoObjectNode)
+    return nodes 
 }
 
 function makeProjectNode(project) {
@@ -47,8 +53,9 @@ function makeProjectNode(project) {
     projectNode.appendChild(description)
 
     // could abstract this by adding a parameter that accepted a function as a node generator, but the specific implementation is fine for now
+    
     let toDoArray = project["items"]
-    let toDoNodes = makeToDoNodes(toDoArray)
+    let toDoNodes = makeToDoObjectsFromArray(toDoArray)
     toDoNodes.forEach(node => projectNode.appendChild(node))
 
     return projectNode
@@ -56,7 +63,11 @@ function makeProjectNode(project) {
 
 function makeProjectsFolder (arrayOfProjects) {
     let folder = document.createElement("div")
-    arrayOfProjects.forEach(folder.appendChild)
+    let arrayOfProjectNodes = arrayOfProjects.map(project => makeProjectNode(project))
+    arrayOfProjectNodes.forEach(node => folder.appendChild(node))
+    return folder 
 }
 
-export { makeProjectNode }
+
+
+export { makeProjectNode , makeProjectsFolder, makeToDoObjectsFromArray }

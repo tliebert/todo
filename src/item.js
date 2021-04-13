@@ -15,6 +15,7 @@ const todoFactory = function(title, description, duedate, priority, notes) {
     return todoItem
 }
 
+
 function setPriority(todo, priority) {
     todo["priority"] = priority
 }
