@@ -1,13 +1,5 @@
 // factory that creates the todo object 
 
-let dummyObj = {
-    title: "Sample ToDo Item", 
-    description: "A short description",
-    duedate: "01/02/2022",
-    priority: "nuclear", 
-    notes: "gotta finish this!",
-}
-
 const todoFactory = function(title, description, duedate, priority, notes) {
 
     let todoItem = {title, description, duedate, priority, notes}
@@ -15,6 +7,7 @@ const todoFactory = function(title, description, duedate, priority, notes) {
     return todoItem
 }
 
+// explore how to refactor this into a single function with different parameters 
 
 function setPriority(todo, priority) {
     todo["priority"] = priority

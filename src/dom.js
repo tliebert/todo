@@ -1,24 +1,5 @@
-let dummyObj = {
-    title: "Sample ToDo Item", 
-    description: "A short description",
-    duedate: "01/02/2022",
-    priority: "nuclear", 
-    notes: "gotta finish this!",
-}
 
-let dummyObj2 = {
-    title: "Second Sample", 
-    description: "A short description",
-    duedate: "10/20/2022",
-    priority: "regular", 
-    notes: "when time warrants",
-}
-
-let dummyProj = {
-    title: "Sample Project",
-    descrption: "What the project's about",
-    items: [dummyObj, dummyObj2],
-}
+import { addDataAttribute } from "./index.js"
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
@@ -28,11 +9,20 @@ function makeToDoItemNode(toDoItem) {
         return listItem
 }
 
-function makeToDoObjectNode(toDoObject) {
+function makeToDoObjectNode(toDoObject, index) {
+
     let toDoContainer = document.createElement("div");
-    for (key in toDoObject) {
-        toDoContainer.appendChild(makeToDoItemNode(toDoObject[key]))
+    
+    for (let key in toDoObject) {
+        let listItem = makeToDoItemNode(toDoObject[key])
+        listItem.setAttribute("id", key)
+        toDoContainer.appendChild(listItem)
     }
+
+    addDataAttribute(toDoObject, index)
+
+    console.log(toDoObject)
+
     return toDoContainer
 }
 
@@ -42,6 +32,7 @@ function makeToDoObjectsFromArray(listArray) {
 }
 
 function makeProjectNode(project) {
+
     let projectNode = document.createElement("div");
 
     let title = document.createElement("h1")
@@ -53,21 +44,20 @@ function makeProjectNode(project) {
     projectNode.appendChild(description)
 
     // could abstract this by adding a parameter that accepted a function as a node generator, but the specific implementation is fine for now
-    
-    let toDoArray = project["items"]
+    let toDoArray = project.returnList()
     let toDoNodes = makeToDoObjectsFromArray(toDoArray)
     toDoNodes.forEach(node => projectNode.appendChild(node))
 
     return projectNode
 }
 
-function makeProjectsFolder (arrayOfProjects) {
+function makeProjectsFolder(arrayOfProjects) {
     let folder = document.createElement("div")
     let arrayOfProjectNodes = arrayOfProjects.map(project => makeProjectNode(project))
     arrayOfProjectNodes.forEach(node => folder.appendChild(node))
     return folder 
 }
 
-
+//Event listeners!
 
 export { makeProjectNode , makeProjectsFolder, makeToDoObjectsFromArray }
