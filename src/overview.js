@@ -1,4 +1,4 @@
-import {removeItemFromArray, addItemToArray} from "./index.js"
+import {removeItemFromArray, addItemToArray, addPositionProperty} from "./index.js"
 
 
 function projectsFolder() {
@@ -9,6 +9,8 @@ function projectsFolder() {
     }
 
     function addProjectToList(project) {
+        let length = projectsList.length
+        addPositionProperty(project, length)
         projectsList.push(project)
     }
 

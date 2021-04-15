@@ -1,5 +1,5 @@
 
-import { addDataAttribute } from "./index.js"
+import { addPositionProperty, setPositionDataAttribute } from "./index.js"
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
@@ -15,13 +15,12 @@ function makeToDoObjectNode(toDoObject, index) {
     
     for (let key in toDoObject) {
         let listItem = makeToDoItemNode(toDoObject[key])
-        listItem.setAttribute("id", key)
+        listItem.setAttribute("data-itemtype", key)
         toDoContainer.appendChild(listItem)
     }
 
-    addDataAttribute(toDoObject, index)
-
-    console.log(toDoObject)
+    addDeleteButton(toDoContainer)
+    setPositionDataAttribute(toDoContainer, toDoObject)
 
     return toDoContainer
 }
@@ -31,7 +30,7 @@ function makeToDoObjectsFromArray(listArray) {
     return nodes 
 }
 
-function makeProjectNode(project) {
+function makeProjectNode(project, index) {
 
     let projectNode = document.createElement("div");
 
@@ -43,7 +42,10 @@ function makeProjectNode(project) {
     description.textContent = project["description"]
     projectNode.appendChild(description)
 
+    setPositionDataAttribute(projectNode, project)
+
     // could abstract this by adding a parameter that accepted a function as a node generator, but the specific implementation is fine for now
+    
     let toDoArray = project.returnList()
     let toDoNodes = makeToDoObjectsFromArray(toDoArray)
     toDoNodes.forEach(node => projectNode.appendChild(node))
@@ -59,5 +61,20 @@ function makeProjectsFolder(arrayOfProjects) {
 }
 
 //Event listeners!
+
+function addDeleteButton(containerNode) {
+    let deleteButton = document.createElement("button")
+    deleteButton.innerText = "Delete"
+    containerNode.appendChild(deleteButton)
+    deleteButton.addEventListener("click", deleteEvent)
+}
+
+function deleteEvent(event) {
+    console.log(event)
+    let containerDiv = event.target.parentElement
+    let indexNumber = containerDiv.getAttribute("data-pos")
+    console.log(indexNumber)
+}
+
 
 export { makeProjectNode , makeProjectsFolder, makeToDoObjectsFromArray }

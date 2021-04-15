@@ -1,4 +1,4 @@
-import {removeItemFromArray, addItemToArray} from "./index.js"
+import {removeItemFromArray, addItemToArray, addPositionProperty} from "./index.js"
 
 
 //factory function to generate new projects 
@@ -8,6 +8,8 @@ function makeProject(title, description) {
     let items = []
 
     const addItemToProject = function(item) {
+        let length = items.length;
+        addPositionProperty(item, length)
         addItemToArray(item, items)
     }
     

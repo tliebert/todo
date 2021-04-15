@@ -26,9 +26,14 @@ function addItemToArray(item, array) {
     array.push(item)
 }
 
-function addDataAttribute(object, position) {
+function addPositionProperty(object, position) {
     object["pos"] = position;
 }
+
+function setPositionDataAttribute(containerNode, object) {
+    containerNode.setAttribute("data-pos", object["pos"])
+}
+
 
 // initial render 
 
@@ -40,4 +45,4 @@ function renderPage() {
 
 renderPage()
 
-export {removeItemFromArray, addItemToArray, addDataAttribute}
+export {removeItemFromArray, addItemToArray, addPositionProperty, setPositionDataAttribute}
