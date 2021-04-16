@@ -34,6 +34,10 @@ function setPositionDataAttribute(containerNode, object) {
     containerNode.setAttribute("data-pos", object["pos"])
 }
 
+function setContainerType(containerNode, type) {
+    containerNode.setAttribute("data-type", type)
+}
+
 
 // initial render 
 
@@ -45,4 +49,4 @@ function renderPage() {
 
 renderPage()
 
-export {removeItemFromArray, addItemToArray, addPositionProperty, setPositionDataAttribute}
+export {removeItemFromArray, addItemToArray, addPositionProperty, setPositionDataAttribute, setContainerType}

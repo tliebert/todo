@@ -1,5 +1,5 @@
 
-import { addPositionProperty, setPositionDataAttribute } from "./index.js"
+import { addPositionProperty, setPositionDataAttribute, setContainerType} from "./index.js"
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
@@ -21,6 +21,7 @@ function makeToDoObjectNode(toDoObject, index) {
 
     addDeleteButton(toDoContainer)
     setPositionDataAttribute(toDoContainer, toDoObject)
+    setContainerType(toDoContainer, "todo")
 
     return toDoContainer
 }
@@ -43,6 +44,7 @@ function makeProjectNode(project, index) {
     projectNode.appendChild(description)
 
     setPositionDataAttribute(projectNode, project)
+    setContainerType(projectNode, "project")
 
     // could abstract this by adding a parameter that accepted a function as a node generator, but the specific implementation is fine for now
     
@@ -70,10 +72,10 @@ function addDeleteButton(containerNode) {
 }
 
 function deleteEvent(event) {
-    console.log(event)
     let containerDiv = event.target.parentElement
     let indexNumber = containerDiv.getAttribute("data-pos")
-    console.log(indexNumber)
+    let containerType = containerDiv.getAttribute("data-type")
+    console.log(event)
 }
 
 
