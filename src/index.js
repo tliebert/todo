@@ -49,4 +49,4 @@ function renderPage() {
 
 renderPage()
 
-export {removeItemFromArray, addItemToArray, addPositionProperty, setPositionDataAttribute, setContainerType}
+export {firstFolder, removeItemFromArray, addItemToArray, addPositionProperty, setPositionDataAttribute, setContainerType}

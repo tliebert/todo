@@ -1,5 +1,6 @@
 
-import { addPositionProperty, setPositionDataAttribute, setContainerType} from "./index.js"
+import { firstFolder, addPositionProperty, setPositionDataAttribute, setContainerType} from "./index.js"
+import { projectsFolder } from "./overview.js"
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
@@ -72,10 +73,9 @@ function addDeleteButton(containerNode) {
 }
 
 function deleteEvent(event) {
-    let containerDiv = event.target.parentElement
-    let indexNumber = containerDiv.getAttribute("data-pos")
-    let containerType = containerDiv.getAttribute("data-type")
-    console.log(event)
+    let containerDiv = event.target.parentElement;
+    console.log(containerDiv)
+    firstFolder.deleteEntry(containerDiv)
 }
 
 
