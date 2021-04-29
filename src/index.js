@@ -1,13 +1,12 @@
 import { todoFactory } from "./item.js"
 import { makeProject } from "./project.js"
 import { projectsFolder } from "./overview.js"
-import { makeProjectNode , makeProjectsFolder, makeToDoObjectsFromArray } from "./dom.js"
+import { renderProjects } from "./dom.js"
 
-const body = document.getElementById("container");
+let firstFolder = projectsFolder()
 
 // Dummy objects for initial page render. 
 
-let firstFolder = projectsFolder()
 let testFactoryProj = makeProject("FactoryTest", "firstDescription")
 let testFactoryObj = todoFactory("my title", "my description", "the duedate", "top priority", "notes")
 testFactoryProj.addItemToProject(testFactoryObj)
@@ -15,7 +14,6 @@ firstFolder.addProjectToList(testFactoryProj)
 
 
 // utility functions to use in each of the individual modules for todo lists, project lists and the app overview
-//
 
 function removeItemFromArray(item, array) {
     let index = array.indexOf(item)
@@ -38,15 +36,20 @@ function setContainerType(containerNode, type) {
     containerNode.setAttribute("data-type", type)
 }
 
-
-// initial render 
-
-function renderPage() {
-    let myProjects = firstFolder.returnList()
-    let allProjectNodes = makeProjectsFolder(myProjects);
-    body.appendChild(allProjectNodes)
+const initialRender = function() {
+    let folder = firstFolder.returnList()
+    renderProjects(folder);
 }
 
-renderPage()
+initialRender()
 
-export {firstFolder, removeItemFromArray, addItemToArray, addPositionProperty, setPositionDataAttribute, setContainerType}
+
+export {  
+            firstFolder, 
+            removeItemFromArray, 
+            addItemToArray, 
+            addPositionProperty, 
+            setPositionDataAttribute, 
+            setContainerType, 
+            initialRender
+    }

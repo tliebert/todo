@@ -1,6 +1,8 @@
 
-import { firstFolder, addPositionProperty, setPositionDataAttribute, setContainerType} from "./index.js"
-import { projectsFolder } from "./overview.js"
+import { set } from "date-fns";
+import { firstFolder, setPositionDataAttribute, setContainerType} from "./index.js"
+
+const projectContainer = document.getElementById("container");
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
@@ -10,7 +12,7 @@ function makeToDoItemNode(toDoItem) {
         return listItem
 }
 
-function makeToDoObjectNode(toDoObject, index) {
+function makeToDoObjectNode(toDoObject) {
 
     let toDoContainer = document.createElement("div");
     
@@ -20,7 +22,7 @@ function makeToDoObjectNode(toDoObject, index) {
         toDoContainer.appendChild(listItem)
     }
 
-    addDeleteButton(toDoContainer)
+    addButtonByType(toDoContainer, "Delete", deleteEvent)
     setPositionDataAttribute(toDoContainer, toDoObject)
     setContainerType(toDoContainer, "todo")
 
@@ -32,7 +34,7 @@ function makeToDoObjectsFromArray(listArray) {
     return nodes 
 }
 
-function makeProjectNode(project, index) {
+function makeProjectNode(project) {
 
     let projectNode = document.createElement("div");
 
@@ -44,10 +46,9 @@ function makeProjectNode(project, index) {
     description.textContent = project["description"]
     projectNode.appendChild(description)
 
+    addButtonByType(projectNode, "Delete", deleteEvent)
     setPositionDataAttribute(projectNode, project)
     setContainerType(projectNode, "project")
-
-    // could abstract this by adding a parameter that accepted a function as a node generator, but the specific implementation is fine for now
     
     let toDoArray = project.returnList()
     let toDoNodes = makeToDoObjectsFromArray(toDoArray)
@@ -63,20 +64,73 @@ function makeProjectsFolder(arrayOfProjects) {
     return folder 
 }
 
-//Event listeners!
-
-function addDeleteButton(containerNode) {
-    let deleteButton = document.createElement("button")
-    deleteButton.innerText = "Delete"
-    containerNode.appendChild(deleteButton)
-    deleteButton.addEventListener("click", deleteEvent)
+function addButtonByType(containerNode, buttonText, clickFunction) {
+    let button = document.createElement("button")
+    button.innerText = buttonText;
+    containerNode.appendChild(button)
+    button.addEventListener("click", clickFunction)
 }
+
+//page rendering functions 
+
+function removeAllNodes(container) {
+    while (container.hasChildNodes()) {
+        container.removeChild(container.firstChild)
+    }
+}
+
+function makeNavbar(arrayOfProjects) {
+    let nav = document.createElement("nav") 
+    arrayOfProjects.forEach(item => nav.appendChild(makeNavItem(item)))
+}
+
+function makeNavItem(project) {
+    let proj = document.createElement("div")
+    proj.innerText = project["title"]
+    setPositionDataAttribute(proj, project)
+    proj.addEventListener("click", displayProject)
+    return proj
+}
+
+function displayProject(node) {
+    node.classList.toggle('selectedProject')
+}
+
+function renderSingleProject(project) {
+
+}
+    
+
+function renderProjects(arrayOfProjects) {
+    removeAllNodes(projectContainer);
+    let allProjectNodes = makeProjectsFolder(arrayOfProjects);
+    projectContainer.appendChild(allProjectNodes)
+}
+
+//event listener functions 
 
 function deleteEvent(event) {
     let containerDiv = event.target.parentElement;
-    console.log(containerDiv)
     firstFolder.deleteEntry(containerDiv)
+    renderPage()
 }
 
+function addToDo() {
 
-export { makeProjectNode , makeProjectsFolder, makeToDoObjectsFromArray }
+}
+
+//form functions 
+
+function addForm(container) {
+
+}
+
+function getFormValues() {
+
+}
+
+export { makeProjectNode, 
+        makeProjectsFolder, 
+        makeToDoObjectsFromArray, 
+        renderProjects 
+    }

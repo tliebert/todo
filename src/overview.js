@@ -1,8 +1,7 @@
-import {removeItemFromArray, addItemToArray, addPositionProperty} from "./index.js"
-import { todoFactory } from "./item.js"
-
+import {removeItemFromArray, addPositionProperty} from "./index.js"
 
 const projectsFolder = function() {
+
     let projectsList = []
 
     function returnList() {
@@ -23,9 +22,13 @@ const projectsFolder = function() {
         return projectsList[index]
     }
 
+// refactor to move the DOM functionality to ./dom.js
+// dom.js can have functionality that separates out the index number and container type
+
     function deleteEntry(node) {
         let indexNumber = node.getAttribute("data-pos")
         let containerType = node.getAttribute("data-type")
+        console.log("deletePressed")
         switch (containerType) {
             case "todo":
                 let project = returnProjectFromIndex(findParentObjectPosition(node));
@@ -38,7 +41,6 @@ const projectsFolder = function() {
             default:
                 console.log("neither to-do nor project")
         }
-        console.log(returnList())
     }
 
     function findParentObjectPosition(node) {
@@ -48,6 +50,5 @@ const projectsFolder = function() {
     return {returnList, addProjectToList, removeProject, deleteEntry}
 
 }
-
 
 export { projectsFolder } 
