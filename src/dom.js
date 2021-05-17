@@ -1,7 +1,8 @@
 
 import { set } from "date-fns";
-import { firstFolder, setPositionDataAttribute, setContainerType} from "./index.js"
+import { firstFolder, setPositionDataAttribute, setContainerType, logDelete} from "./index.js"
 
+const pageBody = document.querySelector("body")
 const projectContainer = document.getElementById("container");
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
@@ -82,6 +83,7 @@ function removeAllNodes(container) {
 function makeNavbar(arrayOfProjects) {
     let nav = document.createElement("nav") 
     arrayOfProjects.forEach(item => nav.appendChild(makeNavItem(item)))
+    return nav;
 }
 
 function makeNavItem(project) {
@@ -92,27 +94,50 @@ function makeNavItem(project) {
     return proj
 }
 
-function displayProject(node) {
-    node.classList.toggle('selectedProject')
+function getPosition(node) {
+    return node.getAttribute("data-pos")
+}
+
+function getType(node) {
+    return node.getAttribute("data-type")
+}
+
+function displayProject(event) {
+    let node = event.target;
+    let position = getPosition(node)
+    let activeProject = firstFolder.returnProjectFromIndex(position)
+    renderSingleProject(activeProject)
 }
 
 function renderSingleProject(project) {
-
+    let projectNode = makeProjectNode(project)  
+    removeAllNodes(projectContainer)
+    projectContainer.appendChild(projectNode)
 }
-    
 
-function renderProjects(arrayOfProjects) {
-    removeAllNodes(projectContainer);
+function toggleNavHighlight(node) {
+    node.classList.toggle('selectedProject')
+}
+   
+function renderProjects(arrayOfProjects, container) {
     let allProjectNodes = makeProjectsFolder(arrayOfProjects);
-    projectContainer.appendChild(allProjectNodes)
+    container.appendChild(allProjectNodes)
 }
+
+function initialRender(arrayOfProjects) {
+    removeAllNodes(projectContainer);
+    let nav = makeNavbar(arrayOfProjects);
+    pageBody.appendChild(nav)
+    renderProjects(arrayOfProjects, projectContainer)
+}
+
 
 //event listener functions 
 
 function deleteEvent(event) {
     let containerDiv = event.target.parentElement;
     firstFolder.deleteEntry(containerDiv)
-    renderPage()
+    logDelete()
 }
 
 function addToDo() {
@@ -132,5 +157,7 @@ function getFormValues() {
 export { makeProjectNode, 
         makeProjectsFolder, 
         makeToDoObjectsFromArray, 
-        renderProjects 
+        renderProjects, 
+        makeNavItem, 
+        initialRender,
     }

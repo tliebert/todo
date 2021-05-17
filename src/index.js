@@ -1,7 +1,7 @@
 import { todoFactory } from "./item.js"
 import { makeProject } from "./project.js"
 import { projectsFolder } from "./overview.js"
-import { renderProjects } from "./dom.js"
+import { initialRender } from "./dom.js"
 
 let firstFolder = projectsFolder()
 
@@ -36,12 +36,16 @@ function setContainerType(containerNode, type) {
     containerNode.setAttribute("data-type", type)
 }
 
-const initialRender = function() {
+const firstRender = function() {
     let folder = firstFolder.returnList()
-    renderProjects(folder);
+    initialRender(folder)
 }
 
-initialRender()
+function logDelete() {
+    firstRender()
+}
+
+firstRender()
 
 
 export {  
@@ -51,5 +55,6 @@ export {
             addPositionProperty, 
             setPositionDataAttribute, 
             setContainerType, 
-            initialRender
+            initialRender,
+            logDelete
     }
