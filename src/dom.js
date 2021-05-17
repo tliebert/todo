@@ -3,6 +3,7 @@ import { set } from "date-fns";
 import { firstFolder, setPositionDataAttribute, setContainerType, logDelete} from "./index.js"
 
 const pageBody = document.querySelector("body")
+const navContainer = document.getElementById("navContainer")
 const projectContainer = document.getElementById("container");
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
@@ -94,14 +95,6 @@ function makeNavItem(project) {
     return proj
 }
 
-function getPosition(node) {
-    return node.getAttribute("data-pos")
-}
-
-function getType(node) {
-    return node.getAttribute("data-type")
-}
-
 function displayProject(event) {
     let node = event.target;
     let position = getPosition(node)
@@ -115,22 +108,34 @@ function renderSingleProject(project) {
     projectContainer.appendChild(projectNode)
 }
 
-function toggleNavHighlight(node) {
-    node.classList.toggle('selectedProject')
-}
-   
 function renderProjects(arrayOfProjects, container) {
     let allProjectNodes = makeProjectsFolder(arrayOfProjects);
     container.appendChild(allProjectNodes)
 }
 
-function initialRender(arrayOfProjects) {
+function renderNavAndProjects(arrayOfProjects) {
     removeAllNodes(projectContainer);
+    removeAllNodes(navContainer)
     let nav = makeNavbar(arrayOfProjects);
-    pageBody.appendChild(nav)
+    navContainer.appendChild(nav)
     renderProjects(arrayOfProjects, projectContainer)
 }
 
+// returning data attributes 
+
+function getPosition(node) {
+    return node.getAttribute("data-pos")
+}
+
+function getType(node) {
+    return node.getAttribute("data-type")
+}
+
+// CSS functions
+
+function toggleNavHighlight(node) {
+    node.classList.toggle('selectedProject')
+}
 
 //event listener functions 
 
@@ -159,5 +164,5 @@ export { makeProjectNode,
         makeToDoObjectsFromArray, 
         renderProjects, 
         makeNavItem, 
-        initialRender,
+        renderNavAndProjects,
     }

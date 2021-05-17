@@ -1,13 +1,13 @@
 import { todoFactory } from "./item.js"
 import { makeProject } from "./project.js"
 import { projectsFolder } from "./overview.js"
-import { initialRender } from "./dom.js"
+import { renderNavAndProjects } from "./dom.js"
 
 let firstFolder = projectsFolder()
 
 // Dummy objects for initial page render. 
 
-let testFactoryProj = makeProject("FactoryTest", "firstDescription")
+let testFactoryProj = makeProject("FactoryTestHeader", "firstDescription")
 let testFactoryObj = todoFactory("my title", "my description", "the duedate", "top priority", "notes")
 testFactoryProj.addItemToProject(testFactoryObj)
 firstFolder.addProjectToList(testFactoryProj)
@@ -38,7 +38,7 @@ function setContainerType(containerNode, type) {
 
 const firstRender = function() {
     let folder = firstFolder.returnList()
-    initialRender(folder)
+    renderNavAndProjects(folder)
 }
 
 function logDelete() {
@@ -54,7 +54,6 @@ export {
             addItemToArray, 
             addPositionProperty, 
             setPositionDataAttribute, 
-            setContainerType, 
-            initialRender,
+            setContainerType,
             logDelete
     }
