@@ -3,14 +3,18 @@ import { makeProject } from "./project.js"
 import { projectsFolder } from "./overview.js"
 import { renderNavAndProjects } from "./dom.js"
 
-let firstFolder = projectsFolder()
+const firstFolder = projectsFolder()
 
 // Dummy objects for initial page render. 
 
 let testFactoryProj = makeProject("FactoryTestHeader", "firstDescription")
+let testFactoryProj2 = makeProject("Second Project", "second Description")
 let testFactoryObj = todoFactory("my title", "my description", "the duedate", "top priority", "notes")
+let testFactoryObj2 = todoFactory("title 2", "descript 2", "dueWhenever", "high priority", "no notes")
 testFactoryProj.addItemToProject(testFactoryObj)
+testFactoryProj2.addItemToProject(testFactoryObj2)
 firstFolder.addProjectToList(testFactoryProj)
+firstFolder.addProjectToList(testFactoryProj2)
 
 
 // utility functions to use in each of the individual modules for todo lists, project lists and the app overview

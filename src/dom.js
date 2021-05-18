@@ -51,6 +51,10 @@ function makeProjectNode(project) {
     addButtonByType(projectNode, "Delete", deleteEvent)
     setPositionDataAttribute(projectNode, project)
     setContainerType(projectNode, "project")
+
+    let number = document.createElement("h3")
+    number.textContent = project["pos"]
+    projectNode.appendChild(number)
     
     let toDoArray = project.returnList()
     let toDoNodes = makeToDoObjectsFromArray(toDoArray)
@@ -98,6 +102,8 @@ function makeNavItem(project) {
 function displayProject(event) {
     let node = event.target;
     let position = getPosition(node)
+    console.log(position)
+    console.log(firstFolder)
     let activeProject = firstFolder.returnProjectFromIndex(position)
     renderSingleProject(activeProject)
 }
@@ -140,8 +146,15 @@ function toggleNavHighlight(node) {
 //event listener functions 
 
 function deleteEvent(event) {
+
+    // delete button should always be a direct child of either a project or todo container
+    //labelled with type and position in the larger array
+    // so this should send back the container node
+
     let containerDiv = event.target.parentElement;
+
     firstFolder.deleteEntry(containerDiv)
+    
     logDelete()
 }
 

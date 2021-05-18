@@ -12,9 +12,14 @@ function makeProject(title, description) {
         addPositionProperty(item, length)
         addItemToArray(item, items)
     }
+
+    const resetPositionProperties = function(array) {
+        array.forEach((item, index) => addPositionProperty(item, index))
+    }
     
     const removeItemFromProject = function(item) {
         removeItemFromArray(item, items)
+        resetPositionProperties(items)
     }
     
     function returnList() {
