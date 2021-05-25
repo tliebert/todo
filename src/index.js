@@ -9,6 +9,7 @@ const firstFolder = projectsFolder()
 
 let testFactoryProj = makeProject("FactoryTestHeader", "firstDescription")
 let testFactoryProj2 = makeProject("Second Project", "second Description")
+let testFactoryObj3 = makeProject("Third Project", "auto added to test button")
 let testFactoryObj = todoFactory("my title", "my description", "the duedate", "top priority", "notes")
 let testFactoryObj2 = todoFactory("title 2", "descript 2", "dueWhenever", "high priority", "no notes")
 testFactoryProj.addItemToProject(testFactoryObj)
@@ -45,7 +46,7 @@ const firstRender = function() {
     renderNavAndProjects(folder)
 }
 
-function logDelete() {
+function logContentChange() {
     firstRender()
 }
 
@@ -59,5 +60,5 @@ export {
             addPositionProperty, 
             setPositionDataAttribute, 
             setContainerType,
-            logDelete
+            logContentChange
     }

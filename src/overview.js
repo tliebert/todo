@@ -1,4 +1,4 @@
-import { addPositionProperty, logDelete} from "./index.js"
+import { addPositionProperty, logContentChange} from "./index.js"
 
 const projectsFolder = function() {
 

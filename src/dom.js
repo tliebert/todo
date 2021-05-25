@@ -1,6 +1,8 @@
 
 import { set } from "date-fns";
-import { firstFolder, setPositionDataAttribute, setContainerType, logDelete} from "./index.js"
+import { testFactoryObj3, firstFolder, setPositionDataAttribute, setContainerType, logContentChange} from "./index.js"
+import { makeProject } from "./project.js"
+
 
 const pageBody = document.querySelector("body")
 const navContainer = document.getElementById("navContainer")
@@ -49,6 +51,8 @@ function makeProjectNode(project) {
     projectNode.appendChild(description)
 
     addButtonByType(projectNode, "Delete", deleteEvent)
+    addButtonByType(projectNode, "Add ToDo", addTodo)
+
     setPositionDataAttribute(projectNode, project)
     setContainerType(projectNode, "project")
 
@@ -70,24 +74,14 @@ function makeProjectsFolder(arrayOfProjects) {
     return folder 
 }
 
-function addButtonByType(containerNode, buttonText, clickFunction) {
-    let button = document.createElement("button")
-    button.innerText = buttonText;
-    containerNode.appendChild(button)
-    button.addEventListener("click", clickFunction)
-}
-
-//page rendering functions 
-
-function removeAllNodes(container) {
-    while (container.hasChildNodes()) {
-        container.removeChild(container.firstChild)
-    }
-}
+//navbar functions
 
 function makeNavbar(arrayOfProjects) {
     let nav = document.createElement("nav") 
     arrayOfProjects.forEach(item => nav.appendChild(makeNavItem(item)))
+
+    addButtonByType(nav, "Add Project", displayAddProjectForm)
+
     return nav;
 }
 
@@ -99,14 +93,22 @@ function makeNavItem(project) {
     return proj
 }
 
+//page rendering functions 
+
+function removeAllNodes(container) {
+    while (container.hasChildNodes()) {
+        container.removeChild(container.firstChild)
+    }
+}
+
 function displayProject(event) {
     let node = event.target;
     let position = getPosition(node)
-    console.log(position)
-    console.log(firstFolder)
     let activeProject = firstFolder.returnProjectFromIndex(position)
     renderSingleProject(activeProject)
 }
+
+// is this redundant with makeProjectNode above?
 
 function renderSingleProject(project) {
     let projectNode = makeProjectNode(project)  
@@ -127,7 +129,8 @@ function renderNavAndProjects(arrayOfProjects) {
     renderProjects(arrayOfProjects, projectContainer)
 }
 
-// returning data attributes 
+// returning data attributes. This functionality mainly happens in overview / firstFolder objeck, 
+// but also for displaying single projects. 
 
 function getPosition(node) {
     return node.getAttribute("data-pos")
@@ -143,6 +146,19 @@ function toggleNavHighlight(node) {
     node.classList.toggle('selectedProject')
 }
 
+function toggleFormView() {
+
+}
+
+// buttons
+
+function addButtonByType(containerNode, buttonText, clickFunction) {
+    let button = document.createElement("button")
+    button.innerText = buttonText;
+    containerNode.appendChild(button)
+    button.addEventListener("click", clickFunction)
+}
+
 //event listener functions 
 
 function deleteEvent(event) {
@@ -155,22 +171,61 @@ function deleteEvent(event) {
 
     firstFolder.deleteEntry(containerDiv)
     
-    logDelete()
-}
-
-function addToDo() {
-
+    logContentChange()
 }
 
 //form functions 
 
-function addForm(container) {
+function displayAddProjectForm(event) {
+ 
+    // create form node inclduing add project button 
+    let nodeForm = createAddProjectForm()
+
+    // add unseen class 
+
+    // append the node to the body 
+
+    // toggle the unseen class
+}
+
+function createAddProjectForm() {
+    let form = document.createElement("form")
+
+    // add button that connects to add Project 
+
+    addButtonByType(form, "Submit", addProject)
+}
+
+// where should the factory go? For now, it's in DOM 
+
+function getDataValuesFromEvent(event) {
 
 }
+
+function addProject(event) {
+    [title, description] = [...array]
+    console.log(title)
+    console.log(description)
+    let project = makeProject(title, description)
+    firstFolder.addProjectToList(project)
+}
+
 
 function getFormValues() {
 
 }
+
+function displayAddTodoForm() {
+
+}
+
+
+function addTodo(event) {
+
+}
+
+
+//
 
 export { makeProjectNode, 
         makeProjectsFolder, 
