@@ -35,7 +35,6 @@ const projectsFolder = function() {
     }
 
     function returnProjectFromIndex(index) {
-
         return projectsList[index]
     }
 

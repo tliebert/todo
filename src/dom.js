@@ -3,7 +3,7 @@ import { set } from "date-fns";
 import { node } from "webpack";
 import { testFactoryObj3, firstFolder, setPositionDataAttribute, setContainerType, logContentChange} from "./index.js"
 import { makeProject } from "./project.js"
-
+import { todoFactory } from "./item.js"
 
 const pageBody = document.querySelector("body")
 const navContainer = document.getElementById("navContainer")
@@ -52,7 +52,7 @@ function makeProjectNode(project) {
     projectNode.appendChild(description)
 
     addButtonByType(projectNode, "Delete", deleteEvent)
-    addButtonByType(projectNode, "Add ToDo", addTodo)
+    addButtonByType(projectNode, "Add ToDo", displayAddTodoForm)
 
     setPositionDataAttribute(projectNode, project)
     setContainerType(projectNode, "project")
@@ -109,8 +109,6 @@ function displayProject(event) {
     renderSingleProject(activeProject)
 }
 
-// is this redundant with makeProjectNode above?
-
 function renderSingleProject(project) {
     let projectNode = makeProjectNode(project)  
     removeAllNodes(projectContainer)
@@ -141,6 +139,11 @@ function getType(node) {
     return node.getAttribute("data-type")
 }
 
+function returnParentProjectNode(event) {
+    let projectNode = event.target.closest("[data-type=project]")
+    return projectNode
+}
+
 // CSS functions
 
 function toggleNavHighlight(node) {
@@ -151,7 +154,7 @@ function toggleFormView() {
 
 }
 
-// buttons
+// buttons & click functions 
 
 function addButtonByType(containerNode, buttonText, clickFunction) {
     let button = document.createElement("button")
@@ -175,7 +178,50 @@ function deleteEvent(event) {
     logContentChange()
 }
 
-//form functions 
+function addProject(event) {
+    event.preventDefault()
+
+    let form = event.target.parentElement
+
+    let array = getFormValues(form)
+
+    let title, description
+    [title, description] = [...array]
+
+    // dependent on knowing a lot about how the objects are made. Positional dependency 
+
+    let project = makeProject(title, description)
+    firstFolder.addProjectToList(project)
+
+    logContentChange()
+}
+
+function addTodo(event) {
+    event.preventDefault()
+
+    let projectNode = returnParentProjectNode(event)
+    let index = getPosition(projectNode)
+
+    let form = event.target.parentElement
+    let valuesArray = getFormValues(form)
+
+    let title, description, duedate, priority, notes
+    [title, description, duedate, priority, notes] = [...valuesArray]
+
+    let projectObject = firstFolder.returnProjectFromIndex(index)
+
+    console.log(projectObject)
+
+    let todo = todoFactory(title, description, duedate, priority, notes)
+
+    projectObject.addItemToProject(todo)
+
+    logContentChange()
+
+}
+
+
+//Project form functions 
 
 function displayAddProjectForm(event) {
  
@@ -185,7 +231,7 @@ function displayAddProjectForm(event) {
     // add unseen class 
 
     // append the node to the body 
-    pageBody.appendChild(formNode)
+    navContainer.appendChild(formNode)
 
     // toggle the unseen class
 }
@@ -196,46 +242,65 @@ function createAddProjectForm() {
 
     let inputs = ["title", "description"]
 
-    inputs.forEach(member => {
-        let input = document.createElement("input")
-        input.setAttribute("type", "text")
-        input.setAttriibute("placeholder", member)
-        input.setAttribute("name", "project-inputs")
-        form.appendChild(input)
-    })
+    makeFormInputsFromArray(inputs, form)
 
     // add button that connects to add Project 
 
     addButtonByType(form, "Submit", addProject)
+
+    return form 
 }
 
-// where should the factory go? For now, it's in DOM 
+//Todo form functions 
+function createAddTodoForm() {
+    let form = document.createElement("form")
+    form.setAttribute("name", "todo-inputs")
 
-function getDataValuesFromEvent(event) {
+    let inputs = ["title", "description", "duedate", "priority", "notes"]
+
+    makeFormInputsFromArray(inputs, form)
+
+    // add button that connects to add Project 
+
+    addButtonByType(form, "Submit", addTodo)
+
+    return form 
+}
+
+function displayAddTodoForm(event) {
+    let formNode = createAddTodoForm()
+
+    let projectContainer = returnParentProjectNode(event)
+
+    projectContainer.appendChild(formNode)
+}
+
+
+// utility form functions 
+
+function makeFormInputsFromArray(array, formNode) {
+    array.forEach(member => {
+        let input = document.createElement("input")
+
+        input.setAttribute("type", "text")
+        input.setAttribute("placeholder", member)
+        input.setAttribute("value", "")
+        input.setAttribute("name", "project-inputs")
+        formNode.appendChild(input)
+    })
+}
+
+function getFormValues(formNode) {
+    let childNodes = Array.from(formNode.childNodes)
+    return childNodes.reduce((acc, ele) => {
+            if(ele.value) {
+                acc.push(ele.value)
+            }
+            return acc
+        }, [])
 
 }
 
-function addProject(event) {
-    [title, description] = [...array]
-    console.log(title)
-    console.log(description)
-    let project = makeProject(title, description)
-    firstFolder.addProjectToList(project)
-}
-
-
-function getFormValues() {
-
-}
-
-function displayAddTodoForm() {
-
-}
-
-
-function addTodo(event) {
-
-}
 
 
 //
