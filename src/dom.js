@@ -1,5 +1,6 @@
 
 import { set } from "date-fns";
+import { node } from "webpack";
 import { testFactoryObj3, firstFolder, setPositionDataAttribute, setContainerType, logContentChange} from "./index.js"
 import { makeProject } from "./project.js"
 
@@ -179,17 +180,29 @@ function deleteEvent(event) {
 function displayAddProjectForm(event) {
  
     // create form node inclduing add project button 
-    let nodeForm = createAddProjectForm()
+    let formNode = createAddProjectForm()
 
     // add unseen class 
 
     // append the node to the body 
+    pageBody.appendChild(formNode)
 
     // toggle the unseen class
 }
 
 function createAddProjectForm() {
     let form = document.createElement("form")
+    form.setAttribute("name", "project-inputs")
+
+    let inputs = ["title", "description"]
+
+    inputs.forEach(member => {
+        let input = document.createElement("input")
+        input.setAttribute("type", "text")
+        input.setAttriibute("placeholder", member)
+        input.setAttribute("name", "project-inputs")
+        form.appendChild(input)
+    })
 
     // add button that connects to add Project 
 
