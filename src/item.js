@@ -2,7 +2,11 @@
 
 const todoFactory = function(title, description, duedate, priority, notes) {
 
-    let todoItem = {title, description, duedate, priority, notes}
+    let todoItem = {"title": title, 
+        "description": description, 
+        "duedate" : duedate, 
+        "priority": priority, 
+        "notes": notes}
 
     return todoItem
 }

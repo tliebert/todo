@@ -8,23 +8,36 @@ import { todoFactory } from "./item.js"
 const pageBody = document.querySelector("body")
 const navContainer = document.getElementById("navContainer")
 const projectContainer = document.getElementById("container");
+const priorities = ["Low", "Medium", "High", "Nuclear"]
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
+
 
 function makeToDoItemNode(toDoItem) {
         let listItem = document.createElement("li")
         listItem.textContent = toDoItem;
         return listItem
-}
+} 
 
 function makeToDoObjectNode(toDoObject) {
 
     let toDoContainer = document.createElement("div");
     
+    // this should only append the function to replace each node w/ a click to change 
+
     for (let key in toDoObject) {
-        let listItem = makeToDoItemNode(toDoObject[key])
-        listItem.setAttribute("data-itemtype", key)
-        toDoContainer.appendChild(listItem)
+        if (key === "pos") continue;
+        else if (key === "priority") {
+            let listItem = makeToDoItemNode(toDoObject[key])
+            listItem.setAttribute("data-itemtype", key)
+            toDoContainer.appendChild(listItem)
+        }
+        else {
+            let listItem = makeToDoItemNode(toDoObject[key])
+            listItem.setAttribute("data-itemtype", key)
+            toDoContainer.appendChild(listItem)
+        }
+        
     }
 
     addButtonByType(toDoContainer, "Delete", deleteEvent)
@@ -57,9 +70,9 @@ function makeProjectNode(project) {
     setPositionDataAttribute(projectNode, project)
     setContainerType(projectNode, "project")
 
-    let number = document.createElement("h3")
-    number.textContent = project["pos"]
-    projectNode.appendChild(number)
+    // let number = document.createElement("h3")
+    // number.textContent = project["pos"]
+    // projectNode.appendChild(number)
     
     let toDoArray = project.returnList()
     let toDoNodes = makeToDoObjectsFromArray(toDoArray)
@@ -82,6 +95,7 @@ function makeNavbar(arrayOfProjects) {
     arrayOfProjects.forEach(item => nav.appendChild(makeNavItem(item)))
 
     addButtonByType(nav, "Add Project", displayAddProjectForm)
+    addButtonByType(nav, "Display All Projects", logContentChange)
 
     return nav;
 }
@@ -242,7 +256,7 @@ function createAddProjectForm() {
 
     let inputs = ["title", "description"]
 
-    makeFormInputsFromArray(inputs, form)
+    inputs.forEach(input => createInputByType(input))
 
     // add button that connects to add Project 
 
@@ -256,9 +270,13 @@ function createAddTodoForm() {
     let form = document.createElement("form")
     form.setAttribute("name", "todo-inputs")
 
-    let inputs = ["title", "description", "duedate", "priority", "notes"]
+    let fields = ["title", "description", "notes", "priority", "duedate"]
 
-    makeFormInputsFromArray(inputs, form)
+    fields.forEach(field => {
+        let inputNode = createInputByType(field)
+        console.log(inputNode)
+        form.appendChild(inputNode)
+    })
 
     // add button that connects to add Project 
 
@@ -278,16 +296,44 @@ function displayAddTodoForm(event) {
 
 // utility form functions 
 
-function makeFormInputsFromArray(array, formNode) {
-    array.forEach(member => {
-        let input = document.createElement("input")
 
+function createInputByType(type) {
+
+    if (type === "title" | type === "description" | type === "notes") {
+        let input = document.createElement("input")
         input.setAttribute("type", "text")
-        input.setAttribute("placeholder", member)
+        input.setAttribute("placeholder", type)
         input.setAttribute("value", "")
         input.setAttribute("name", "project-inputs")
-        formNode.appendChild(input)
-    })
+        return input 
+    }
+
+    else if (type === "duedate") {
+        let input = document.createElement("input")
+        input.setAttribute("type", "date")
+        input.setAttribute("value", "")
+        input.setAttribute("name", "project-inputs")
+        return input
+    }
+
+    else if (type === "priority") {
+        let selector = document.createElement("select")
+        selector.setAttribute("name", "priorities")
+        selector.setAttribute("id", "priorities")
+
+        priorities.forEach(level => {
+                let option = document.createElement("option");
+                option.setAttribute("value", level)
+                option.textContent = level
+                selector.appendChild(option)
+            })
+        return selector; 
+        }
+
+    else {
+        console.log('invalid input type')
+    }
+    
 }
 
 function getFormValues(formNode) {
@@ -302,8 +348,6 @@ function getFormValues(formNode) {
 }
 
 
-
-//
 
 export { makeProjectNode, 
         makeProjectsFolder, 
