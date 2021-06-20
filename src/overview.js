@@ -24,6 +24,12 @@ const projectsFolder = function() {
     // could be refactored, carefully, as the Webpack settings were causing an error when it was 
     // imported 
 
+    const editTodoItem = function(projectIndex, todoIndex, newValue, type) {
+        let project = returnProjectFromIndex(projectIndex)
+        let todo = project.items[todoIndex]
+        todo[type] = newValue
+    }
+
     const removeItemFromArray = function(project) {
         let index = projectsList.indexOf(project)
         projectsList.splice(index, 1)
@@ -66,12 +72,10 @@ const projectsFolder = function() {
 
     function findParentObjectPosition(node) {
 
-        console.log(node.parentElement.getAttribute("data-pos"))
-
         return node.parentElement.getAttribute("data-pos")
     }
 
-    return {projectsList, returnList, addProjectToList, removeProject, deleteEntry, returnProjectFromIndex}
+    return {projectsList, editTodoItem, returnList, addProjectToList, removeProject, deleteEntry, returnProjectFromIndex}
 
 }
 

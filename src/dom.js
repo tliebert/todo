@@ -16,6 +16,7 @@ const priorities = ["Low", "Medium", "High", "Nuclear"]
 function makeToDoItemNode(toDoItem) {
         let listItem = document.createElement("li")
         listItem.textContent = toDoItem;
+        listItem.addEventListener("click", editTodoItem)
         return listItem
 } 
 
@@ -26,12 +27,15 @@ function makeToDoObjectNode(toDoObject) {
     // this should only append the function to replace each node w/ a click to change 
 
     for (let key in toDoObject) {
+
         if (key === "pos") continue;
-        else if (key === "priority") {
-            let listItem = makeToDoItemNode(toDoObject[key])
-            listItem.setAttribute("data-itemtype", key)
-            toDoContainer.appendChild(listItem)
-        }
+
+        // else if (key === "priority") {
+        //     let listItem = makeToDoItemNode(toDoObject[key])
+        //     listItem.setAttribute("data-itemtype", key)
+        //     toDoContainer.appendChild(listItem)
+        // }
+
         else {
             let listItem = makeToDoItemNode(toDoObject[key])
             listItem.setAttribute("data-itemtype", key)
@@ -158,6 +162,15 @@ function returnParentProjectNode(event) {
     return projectNode
 }
 
+function returnTodoNode(event) {
+        let todoNode = event.target.closest("[data-type=todo]")
+        return todoNode
+}
+
+function submitNewTodoItem(parentPos, todoPos, newValue, type) {
+    firstFolder.editTodoItem(parentPos, todoPos, newValue, type)
+}
+
 // CSS functions
 
 function toggleNavHighlight(node) {
@@ -224,15 +237,62 @@ function addTodo(event) {
 
     let projectObject = firstFolder.returnProjectFromIndex(index)
 
-    console.log(projectObject)
-
     let todo = todoFactory(title, description, duedate, priority, notes)
 
+
     projectObject.addItemToProject(todo)
+
+    //this is causing a adding a single todo to a single project view to add then re-render whole lsit 
 
     logContentChange()
 
 }
+
+function editTodoItem(event) {
+
+    // set the currentEditedItem to whatever was clicked 
+    let currentEditedItem = event.target
+
+    // extract the data-itemtype
+    let itemtype = event.target.getAttribute("data-itemtype")
+
+    // find the parent node
+    let parent = event.target.parentElement
+
+    // create an input of the correct type 
+    let tempInput = createInputByType(itemtype)
+    tempInput.setAttribute("value", event.target.innerHTML)
+
+    // replace the target element with the new input
+    parent.replaceChild(tempInput, event.target)
+
+    let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
+    let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
+
+    // add click elsewhere listener
+    document.addEventListener("click", clickElsewhereListener)
+
+    function clickElsewhereListener(event) {
+        let clickedNode = event.target
+        if (clickedNode == currentEditedItem) {
+            console.log("you clicked on the active edited item", currentEditedItem)
+            currentEditedItem = tempInput
+            return 
+        }
+        else {
+            let currentTodoValue = tempInput.value
+            submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
+            document.removeEventListener("click", clickElsewhereListener)
+            console.log("shouldn;t be an event listener here", currentEditedItem)
+
+            logContentChange()
+        }
+    }
+
+    // find the parent project, find the todo, and change the value, then log content change
+
+}
+
 
 
 //Project form functions 
@@ -256,7 +316,9 @@ function createAddProjectForm() {
 
     let inputs = ["title", "description"]
 
-    inputs.forEach(input => createInputByType(input))
+    inputs.forEach(input => {
+        form.appendChild(createInputByType(input))
+    })
 
     // add button that connects to add Project 
 
@@ -270,11 +332,10 @@ function createAddTodoForm() {
     let form = document.createElement("form")
     form.setAttribute("name", "todo-inputs")
 
-    let fields = ["title", "description", "notes", "priority", "duedate"]
+    let fields = ["title", "description", "duedate", "priority", "notes"]
 
     fields.forEach(field => {
         let inputNode = createInputByType(field)
-        console.log(inputNode)
         form.appendChild(inputNode)
     })
 
