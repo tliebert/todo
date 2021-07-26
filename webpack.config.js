@@ -1,24 +1,10 @@
-const path = require('path');
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin")
-
+const path = require('path')
 
 module.exports = {
-    mode: "development",
-    entry: './src/index.js',
+    entry: "./src/index.js",
     output: {
-        filename: 'main.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: "main.js",
+        path: path.resolve(__dirname, 'dist'),
     },
-    plugins: [
-		new NodePolyfillPlugin()
-	],
-    resolve: {
-        fallback: {
-          fs: false,
-          child_process: false,
-          worker_threads: false
-        },
-      }
-
+    mode: "development",
 };
-
