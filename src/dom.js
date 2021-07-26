@@ -1,6 +1,4 @@
 
-import { set } from "date-fns";
-import { node } from "webpack";
 import { testFactoryObj3, firstFolder, setPositionDataAttribute, setContainerType, logContentChange} from "./index.js"
 import { makeProject } from "./project.js"
 import { todoFactory } from "./item.js"
@@ -206,6 +204,7 @@ function deleteEvent(event) {
 }
 
 function addProject(event) {
+
     event.preventDefault()
 
     let form = event.target.parentElement
@@ -251,7 +250,7 @@ function addTodo(event) {
 function editTodoItem(event) {
 
     // set the currentEditedItem to whatever was clicked 
-    let currentEditedItem = event.target
+    // let currentEditedItem = event.target
 
     // extract the data-itemtype
     let itemtype = event.target.getAttribute("data-itemtype")
@@ -266,14 +265,19 @@ function editTodoItem(event) {
     // replace the target element with the new input
     parent.replaceChild(tempInput, event.target)
 
+    // get the todo number and parent project number 
     let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
     let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
+
+    let currentEditedItem = tempInput
 
     // add click elsewhere listener
     document.addEventListener("click", clickElsewhereListener)
 
     function clickElsewhereListener(event) {
+
         let clickedNode = event.target
+
         if (clickedNode == currentEditedItem) {
             console.log("you clicked on the active edited item", currentEditedItem)
             currentEditedItem = tempInput

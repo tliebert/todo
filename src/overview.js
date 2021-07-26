@@ -56,9 +56,11 @@ const projectsFolder = function() {
 
         switch (containerType) {
             case "todo":
+                {
                 let project = returnProjectFromIndex(findParentObjectPosition(node));
                 let list = project.returnList()
                 project.removeItemFromProject(list[indexNumber])
+                }
                 break;
             case "project":
                 // console.log(returnProjectFromIndex(indexNumber))
