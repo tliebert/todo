@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "test": "echo \"error: no test speciried\" && exit 1",
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --watch"
+    
   },
   "dependencies": {
     "prettier": "^2.3.2",

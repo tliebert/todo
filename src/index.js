@@ -8,7 +8,7 @@ const firstFolder = projectsFolder()
 // Dummy objects for initial page render. 
 
 let testFactoryProj = makeProject("FactoryTestHeader", "firstDescription")
-let testFactoryProj2 = makeProject("Second Project", "second Description")
+let testFactoryProj2 = makeProject("Second Project", "second Descriptiongk")
 let testFactoryObj3 = makeProject("Third Project", "auto added to test button")
 let testFactoryObj = todoFactory("my title", "my description", "the duedate", "top priority", "notes")
 let testFactoryObj2 = todoFactory("title 2", "descript 2", "dueWhenever", "high priority", "no notes")
