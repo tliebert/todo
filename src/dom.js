@@ -14,7 +14,7 @@ const priorities = ["Low", "Medium", "High", "Nuclear"]
 function makeToDoItemNode(toDoItem) {
         let listItem = document.createElement("li")
         listItem.textContent = toDoItem;
-        listItem.addEventListener("click", editTodoItem)
+        listItem.addEventListener("click", clickEditController.handleTodoClick)
         return listItem
 } 
 
@@ -247,55 +247,93 @@ function addTodo(event) {
 
 }
 
-function editTodoItem(event) {
+const clickEditController = (function() {
 
-    // set the currentEditedItem to whatever was clicked 
-    // let currentEditedItem = event.target
+    let activeEditedNode
 
-    // extract the data-itemtype
-    let itemtype = event.target.getAttribute("data-itemtype")
+    //only invoked if todo clicked on
 
-    // find the parent node
-    let parent = event.target.parentElement
-
-    // create an input of the correct type 
-    let tempInput = createInputByType(itemtype)
-    tempInput.setAttribute("value", event.target.innerHTML)
-
-    // replace the target element with the new input
-    parent.replaceChild(tempInput, event.target)
-
-    // get the todo number and parent project number 
-    let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
-    let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
-
-    let currentEditedItem = tempInput
-
-    // add click elsewhere listener
-    document.addEventListener("click", clickElsewhereListener)
-
-    function clickElsewhereListener(event) {
-
-        let clickedNode = event.target
-
-        if (clickedNode == currentEditedItem) {
-            console.log("you clicked on the active edited item", currentEditedItem)
-            currentEditedItem = tempInput
+    function handleTodoClick(event) {
+        if (!activeEditedNode) {
+            activeEditedNode = event.target
+            let inputBox = replaceInput(event)
+            activeEditedNode = inputBox;
+            addClickElsewhereListener()
+        }
+        else if (event.target === activeEditedNode) {
             return 
         }
-        else {
-            let currentTodoValue = tempInput.value
-            submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
-            document.removeEventListener("click", clickElsewhereListener)
-            console.log("shouldn;t be an event listener here", currentEditedItem)
 
-            logContentChange()
+        else if (!(event.target === activeEditedNode)) {
+            submitCurrentToDoValue(activeEditedNode)
+            activeEditedNode === event.target
+            let inputBox = replaceInput(event)
+            activeEditedNode = inputBox;
+            addClickElsewhereListener()
         }
+        else {
+            console.log("end of todo handle Click event reached")
+        }
+
     }
 
-    // find the parent project, find the todo, and change the value, then log content change
+    //this filters out non-editable events 
 
+    function addClickElsewhereListener() {
+        document.addEventListener("click", (e) => {
+            if (e.target === activeEditedNode) {
+                return
+            }
+            else if (isEditable(e.target)) { 
+                //if its another todo, remove event listener then handle 
+                handleTodoClick(e)
+            }
+            else {
+                //remove this event listener?            
+            }
+        })
+    }
+
+    function submitCurrentToDoValue(node) {
+
+        let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
+        let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
+        let itemtype = node.target.getAttribute("data-itemtype")
+        let currentTodoValue =
+
+        submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
+
+        
+
+    }
+
+
+    function isEditable(event) {
+        
+    }
+
+    function replaceInput (event) {
+        // extract the data-itemtype
+        let itemtype = event.target.getAttribute("data-itemtype")
+    
+        // find the parent node
+        let parent = event.target.parentElement
+    
+        // create an input of the correct type 
+        let tempInput = createInputByType(itemtype)
+        tempInput.setAttribute("value", event.target.innerHTML)
+    
+        // replace the target element with the new input
+        parent.replaceChild(tempInput, event.target)
+
+        return tempInput
 }
+    
+    return {
+        handleTodoClick
+    }
+
+})()
 
 
 
