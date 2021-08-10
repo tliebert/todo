@@ -17,19 +17,21 @@ const clickEditController = (function() {
     //only invoked if todo clicked on
 
     function handleTodoClick(event) {
+
         if (!activeEditedNode) {
             activeEditedNode = event.target
             let inputBox = replaceInput(event)
             activeEditedNode = inputBox;
             addClickElsewhereListener()
         }
+
         else if (event.target === activeEditedNode) {
             return 
         }
 
         else if (!(event.target === activeEditedNode)) {
             submitCurrentToDoValue(activeEditedNode)
-            activeEditedNode === event.target
+            activeEditedNode = event.target
             let inputBox = replaceInput(event)
             activeEditedNode = inputBox;
             addClickElsewhereListener()
@@ -43,25 +45,29 @@ const clickEditController = (function() {
     //this filters out non-editable events 
 
     function addClickElsewhereListener() {
-        document.addEventListener("click", (e) => {
-            if (e.target === activeEditedNode) {
-                return
-            }
-            else if (isEditable(e.target)) { 
-                //if its another todo, remove event listener then handle 
-                handleTodoClick(e)
-            }
-            else {
-                //remove this event listener?            
-            }
-        })
+        document.addEventListener("click", clickElsewhereListener)
+    }
+
+    function clickElsewhereListener(e) {
+        if (e.target === activeEditedNode) {
+            return
+        }
+        else if (isEditable(e.target)) { 
+
+            console.log("Program thinks clicked thing is editable and will initiate handle todo click")
+            //if its another todo, remove event listener then handle 
+            handleTodoClick(e)
+        }
+        else {
+            console.log("clicked elsewhere")    
+        }
     }
 
     function submitCurrentToDoValue(node) {
 
-        let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
-        let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
-        let itemtype = node.target.getAttribute("data-itemtype")
+        let parentProjectPosition = getPosition(node.closest("[data-type=project]"))
+        let todoPosition = getPosition(node.closest("[data-type=todo]"))
+        let itemtype = node.getAttribute("data-itemtype")
         let currentTodoValue = node.value 
 
         submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
@@ -415,6 +421,7 @@ function createInputByType(type) {
 
     if (type === "title" | type === "description" | type === "notes") {
         let input = document.createElement("input")
+        input.setAttribute("data-itemtype", type)
         input.setAttribute("type", "text")
         input.setAttribute("placeholder", type)
         input.setAttribute("value", "")
@@ -424,6 +431,7 @@ function createInputByType(type) {
 
     else if (type === "duedate") {
         let input = document.createElement("input")
+        input.setAttribute("data-itemtype", type)
         input.setAttribute("type", "date")
         input.setAttribute("value", "")
         input.setAttribute("name", "project-inputs")
@@ -432,6 +440,7 @@ function createInputByType(type) {
 
     else if (type === "priority") {
         let selector = document.createElement("select")
+        selector.setAttribute("data-itemtype", type)
         selector.setAttribute("name", "priorities")
         selector.setAttribute("id", "priorities")
 
