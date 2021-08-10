@@ -8,6 +8,105 @@ const navContainer = document.getElementById("navContainer")
 const projectContainer = document.getElementById("container");
 const priorities = ["Low", "Medium", "High", "Nuclear"]
 
+// Module for handling edit clicks
+
+const clickEditController = (function() {
+
+    let activeEditedNode
+
+    //only invoked if todo clicked on
+
+    function handleTodoClick(event) {
+        if (!activeEditedNode) {
+            activeEditedNode = event.target
+            let inputBox = replaceInput(event)
+            activeEditedNode = inputBox;
+            addClickElsewhereListener()
+        }
+        else if (event.target === activeEditedNode) {
+            return 
+        }
+
+        else if (!(event.target === activeEditedNode)) {
+            submitCurrentToDoValue(activeEditedNode)
+            activeEditedNode === event.target
+            let inputBox = replaceInput(event)
+            activeEditedNode = inputBox;
+            addClickElsewhereListener()
+        }
+        else {
+            console.log("end of todo handle Click event reached")
+        }
+
+    }
+
+    //this filters out non-editable events 
+
+    function addClickElsewhereListener() {
+        document.addEventListener("click", (e) => {
+            if (e.target === activeEditedNode) {
+                return
+            }
+            else if (isEditable(e.target)) { 
+                //if its another todo, remove event listener then handle 
+                handleTodoClick(e)
+            }
+            else {
+                //remove this event listener?            
+            }
+        })
+    }
+
+    function submitCurrentToDoValue(node) {
+
+        let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
+        let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
+        let itemtype = node.target.getAttribute("data-itemtype")
+        let currentTodoValue = node.value 
+
+        submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
+
+    }
+
+
+    function isEditable(event) {
+        if (event.closest("[data-type=todo]")) {
+            return true 
+        }
+        else {
+            return false 
+        }
+
+    }
+
+    function replaceInput (event) {
+        // extract the data-itemtype
+        let itemtype = event.target.getAttribute("data-itemtype")
+    
+        // find the parent node
+        let parent = event.target.parentElement
+    
+        // create an input of the correct type 
+        let tempInput = createInputByType(itemtype)
+        tempInput.setAttribute("value", event.target.innerHTML)
+    
+        // replace the target element with the new input
+        parent.replaceChild(tempInput, event.target)
+
+        return tempInput
+}
+    function testerLog(){
+        console.log("ieff module initiated")
+    }
+    
+    return {
+        handleTodoClick, testerLog
+    }
+
+})()
+
+clickEditController.testerLog()
+
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
 
@@ -246,94 +345,6 @@ function addTodo(event) {
     logContentChange()
 
 }
-
-const clickEditController = (function() {
-
-    let activeEditedNode
-
-    //only invoked if todo clicked on
-
-    function handleTodoClick(event) {
-        if (!activeEditedNode) {
-            activeEditedNode = event.target
-            let inputBox = replaceInput(event)
-            activeEditedNode = inputBox;
-            addClickElsewhereListener()
-        }
-        else if (event.target === activeEditedNode) {
-            return 
-        }
-
-        else if (!(event.target === activeEditedNode)) {
-            submitCurrentToDoValue(activeEditedNode)
-            activeEditedNode === event.target
-            let inputBox = replaceInput(event)
-            activeEditedNode = inputBox;
-            addClickElsewhereListener()
-        }
-        else {
-            console.log("end of todo handle Click event reached")
-        }
-
-    }
-
-    //this filters out non-editable events 
-
-    function addClickElsewhereListener() {
-        document.addEventListener("click", (e) => {
-            if (e.target === activeEditedNode) {
-                return
-            }
-            else if (isEditable(e.target)) { 
-                //if its another todo, remove event listener then handle 
-                handleTodoClick(e)
-            }
-            else {
-                //remove this event listener?            
-            }
-        })
-    }
-
-    function submitCurrentToDoValue(node) {
-
-        let parentProjectPosition = getPosition(tempInput.closest("[data-type=project]"))
-        let todoPosition = getPosition(tempInput.closest("[data-type=todo]"))
-        let itemtype = node.target.getAttribute("data-itemtype")
-        let currentTodoValue =
-
-        submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
-
-        
-
-    }
-
-
-    function isEditable(event) {
-        
-    }
-
-    function replaceInput (event) {
-        // extract the data-itemtype
-        let itemtype = event.target.getAttribute("data-itemtype")
-    
-        // find the parent node
-        let parent = event.target.parentElement
-    
-        // create an input of the correct type 
-        let tempInput = createInputByType(itemtype)
-        tempInput.setAttribute("value", event.target.innerHTML)
-    
-        // replace the target element with the new input
-        parent.replaceChild(tempInput, event.target)
-
-        return tempInput
-}
-    
-    return {
-        handleTodoClick
-    }
-
-})()
 
 
 
