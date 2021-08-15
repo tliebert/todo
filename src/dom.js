@@ -13,14 +13,13 @@ const priorities = ["Low", "Medium", "High", "Nuclear"]
 const clickEditController = (function() {
 
     let activeEditedNode
-
-    //only invoked if todo clicked on
+    let todoListItem
 
     function handleTodoClick(event) {
 
         if (!activeEditedNode) {
-            activeEditedNode = event.target
-            let inputBox = replaceInput(event)
+            todoListItem = event.target
+            let inputBox = replaceTodoAndReturnInput(event)
             activeEditedNode = inputBox;
             addClickElsewhereListener()
         }
@@ -29,17 +28,30 @@ const clickEditController = (function() {
             return 
         }
 
+        //  let parent = event.target.parentElement
+        //parent.replaceChild(activeEditedNode, 
+
         else if (!(event.target === activeEditedNode)) {
-            submitCurrentToDoValue(activeEditedNode)
-            activeEditedNode = event.target
-            let inputBox = replaceInput(event)
+            todoListItem.value = activeEditedNode.value
+            submitValueAndReplaceListItem(activeEditedNode, todoListItem)
+            
+            todoListItem = event.target
+            let inputBox = replaceTodoAndReturnInput(event)
             activeEditedNode = inputBox;
             addClickElsewhereListener()
+
         }
         else {
             console.log("end of todo handle Click event reached")
         }
 
+    }
+
+    function submitValueAndReplaceListItem(editedInput, oldListItem) {
+        submitCurrentToDoValue(activeEditedNode)
+        let parent = activeEditedNode.parentElement;
+        todoListItem.value = activeEditedNode.value
+        parent.replaceChild(todoListItem, activeEditedNode)
     }
 
     //this filters out non-editable events 
@@ -48,20 +60,36 @@ const clickEditController = (function() {
         document.addEventListener("click", clickElsewhereListener)
     }
 
+    //
+
     function clickElsewhereListener(e) {
+
+        console.log("click elsewhere event fired, target is", e.target)
+
+        // console.log("click elswhere active, active is:", activeEditedNode)
+        // console.log("click elswehre things the active event target is", e.target)
+
+        // I think this is hitting on the bubble up 
+
         if (e.target === activeEditedNode) {
+            console.log("clicked target was active edited Node ")
             return
         }
         else if (isEditable(e.target)) { 
 
-            console.log("Program thinks clicked thing is editable and will initiate handle todo click")
+            console.log("clickElsewhere thinks the event target is editable")
+
             //if its another todo, remove event listener then handle 
+
             handleTodoClick(e)
         }
         else {
-            console.log("clicked elsewhere")    
+            submitValueAndReplaceListItem(activeEditedNode, todoListItem)
+            console.log("Click Elsewhere end of options reached")    
+            //submitValueAndReplaceListItem(activeEditedNode, todoListItem)
         }
     }
+
 
     function submitCurrentToDoValue(node) {
 
@@ -74,9 +102,9 @@ const clickEditController = (function() {
 
     }
 
-
-    function isEditable(event) {
-        if (event.closest("[data-type=todo]")) {
+    function isEditable(node) {
+        console.log(node.closest("[data-type=todo]"))
+        if (node.closest("[data-type=todo]")) {
             return true 
         }
         else {
@@ -85,7 +113,7 @@ const clickEditController = (function() {
 
     }
 
-    function replaceInput (event) {
+    function replaceTodoAndReturnInput(event) {
         // extract the data-itemtype
         let itemtype = event.target.getAttribute("data-itemtype")
     
@@ -101,17 +129,12 @@ const clickEditController = (function() {
 
         return tempInput
 }
-    function testerLog(){
-        console.log("ieff module initiated")
-    }
-    
+
     return {
-        handleTodoClick, testerLog
+        handleTodoClick
     }
 
 })()
-
-clickEditController.testerLog()
 
 // Node creation at ToDo, Project, and Folder (all projects) level 
 
@@ -249,7 +272,7 @@ function renderNavAndProjects(arrayOfProjects) {
     renderProjects(arrayOfProjects, projectContainer)
 }
 
-// returning data attributes. This functionality mainly happens in overview / firstFolder objeck, 
+// returning data attributes. This functionality mainly happens in overview / firstFolder object, 
 // but also for displaying single projects. 
 
 function getPosition(node) {
@@ -293,7 +316,7 @@ function addButtonByType(containerNode, buttonText, clickFunction) {
     button.addEventListener("click", clickFunction)
 }
 
-//event listener functions 
+//event listener button functions 
 
 function deleteEvent(event) {
 
@@ -353,7 +376,6 @@ function addTodo(event) {
 }
 
 
-
 //Project form functions 
 
 function displayAddProjectForm(event) {
@@ -387,6 +409,7 @@ function createAddProjectForm() {
 }
 
 //Todo form functions 
+
 function createAddTodoForm() {
     let form = document.createElement("form")
     form.setAttribute("name", "todo-inputs")
@@ -415,7 +438,6 @@ function displayAddTodoForm(event) {
 
 
 // utility form functions 
-
 
 function createInputByType(type) {
 
