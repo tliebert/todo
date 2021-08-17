@@ -18,6 +18,7 @@ const clickEditController = (function() {
     function handleTodoClick(event) {
 
         if (!activeEditedNode) {
+            console.log("no activeEditedNode found")
             todoListItem = event.target
             let inputBox = replaceTodoAndReturnInput(event)
             activeEditedNode = inputBox;
@@ -32,7 +33,7 @@ const clickEditController = (function() {
         //parent.replaceChild(activeEditedNode, 
 
         else if (!(event.target === activeEditedNode)) {
-            todoListItem.value = activeEditedNode.value
+
             submitValueAndReplaceListItem(activeEditedNode, todoListItem)
             
             todoListItem = event.target
@@ -48,33 +49,28 @@ const clickEditController = (function() {
     }
 
     function submitValueAndReplaceListItem(editedInput, oldListItem) {
-        submitCurrentToDoValue(activeEditedNode)
-        let parent = activeEditedNode.parentElement;
-        todoListItem.value = activeEditedNode.value
-        parent.replaceChild(todoListItem, activeEditedNode)
+        submitCurrentToDoValue(editedInput)
+        let parent = editedInput.parentElement;
+        //this (below) is a very temporary patch. 
+        oldListItem.textContent = editedInput.value
+        parent.replaceChild(oldListItem, activeEditedNode)
     }
 
     //this filters out non-editable events 
 
     function addClickElsewhereListener() {
-        document.addEventListener("click", clickElsewhereListener)
+        document.addEventListener("click", clickElsewhereListener, true)
     }
 
     //
 
     function clickElsewhereListener(e) {
 
-        console.log("click elsewhere event fired, target is", e.target)
-
-        // console.log("click elswhere active, active is:", activeEditedNode)
-        // console.log("click elswehre things the active event target is", e.target)
-
-        // I think this is hitting on the bubble up 
-
         if (e.target === activeEditedNode) {
             console.log("clicked target was active edited Node ")
             return
         }
+
         else if (isEditable(e.target)) { 
 
             console.log("clickElsewhere thinks the event target is editable")
@@ -83,6 +79,7 @@ const clickEditController = (function() {
 
             handleTodoClick(e)
         }
+
         else {
             submitValueAndReplaceListItem(activeEditedNode, todoListItem)
             console.log("Click Elsewhere end of options reached")    
@@ -103,7 +100,7 @@ const clickEditController = (function() {
     }
 
     function isEditable(node) {
-        console.log(node.closest("[data-type=todo]"))
+
         if (node.closest("[data-type=todo]")) {
             return true 
         }
