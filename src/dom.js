@@ -18,7 +18,7 @@ const clickEditController = (function() {
     function handleTodoClick(event) {
 
         if (!activeEditedNode) {
-            console.log("no activeEditedNode found")
+            console.log("no activeEditedNode option")
             todoListItem = event.target
             let inputBox = replaceTodoAndReturnInput(event)
             activeEditedNode = inputBox;
@@ -26,6 +26,7 @@ const clickEditController = (function() {
         }
 
         else if (event.target === activeEditedNode) {
+            console.log("event target is the activeEditedNode")
             return 
         }
 
@@ -49,20 +50,26 @@ const clickEditController = (function() {
     }
 
     function submitValueAndReplaceListItem(editedInput, oldListItem) {
-        submitCurrentToDoValue(editedInput)
-        let parent = editedInput.parentElement;
-        //this (below) is a very temporary patch. 
-        oldListItem.textContent = editedInput.value
-        parent.replaceChild(oldListItem, activeEditedNode)
-    }
 
-    //this filters out non-editable events 
+        if (!(editedInput.parentElement)) {
+            return
+        }
+        else {
+            submitCurrentToDoValue(editedInput)
+
+            let parent = editedInput.parentElement;
+    
+            oldListItem.textContent = editedInput.value
+    
+            parent.replaceChild(oldListItem, activeEditedNode)
+        }
+
+    }
 
     function addClickElsewhereListener() {
         document.addEventListener("click", clickElsewhereListener, true)
     }
 
-    //
 
     function clickElsewhereListener(e) {
 
@@ -81,15 +88,17 @@ const clickEditController = (function() {
         }
 
         else {
+
+            console.log("click elsewhere listener thinks is going to try to submit the active edited item")
+
             submitValueAndReplaceListItem(activeEditedNode, todoListItem)
-            console.log("Click Elsewhere end of options reached")    
-            //submitValueAndReplaceListItem(activeEditedNode, todoListItem)
         }
     }
 
 
     function submitCurrentToDoValue(node) {
 
+        console.log(node, node.parentElement)
         let parentProjectPosition = getPosition(node.closest("[data-type=project]"))
         let todoPosition = getPosition(node.closest("[data-type=todo]"))
         let itemtype = node.getAttribute("data-itemtype")
