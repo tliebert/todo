@@ -1,509 +1,455 @@
+import {
+  firstFolder,
+  setPositionDataAttribute,
+  setContainerType,
+  logContentChange,
+} from "./index.js";
+import { makeProject } from "./project.js";
+import { todoFactory } from "./item.js";
 
-import { testFactoryObj3, firstFolder, setPositionDataAttribute, setContainerType, logContentChange} from "./index.js"
-import { makeProject } from "./project.js"
-import { todoFactory } from "./item.js"
-
-const pageBody = document.querySelector("body")
-const navContainer = document.getElementById("navContainer")
+const navContainer = document.getElementById("navContainer");
 const projectContainer = document.getElementById("container");
-const priorities = ["Low", "Medium", "High", "Nuclear"]
+const priorities = ["Low", "Medium", "High", "Nuclear"];
 
 // Module for handling edit clicks
 
-const clickEditController = (function() {
+const clickEditController = (function () {
+  let activeEditedNode;
+  let todoListItem;
 
-    let activeEditedNode
-    let todoListItem
+  function handleTodoClick(event) {
+    if (!activeEditedNode) {
+      console.log("no activeEditedNode option");
+      todoListItem = event.target;
+      let inputBox = replaceTodoAndReturnInput(event);
+      activeEditedNode = inputBox;
+      addClickElsewhereListener();
+    } else if (event.target === activeEditedNode) {
+      console.log("event target is the activeEditedNode");
+      return;
+    } else if (!(event.target === activeEditedNode)) {
+      submitValueAndReplaceListItem(activeEditedNode, todoListItem);
 
-    function handleTodoClick(event) {
-
-        if (!activeEditedNode) {
-            console.log("no activeEditedNode option")
-            todoListItem = event.target
-            let inputBox = replaceTodoAndReturnInput(event)
-            activeEditedNode = inputBox;
-            addClickElsewhereListener()
-        }
-
-        else if (event.target === activeEditedNode) {
-            console.log("event target is the activeEditedNode")
-            return 
-        }
-
-        //  let parent = event.target.parentElement
-        //parent.replaceChild(activeEditedNode, 
-
-        else if (!(event.target === activeEditedNode)) {
-
-            submitValueAndReplaceListItem(activeEditedNode, todoListItem)
-            
-            todoListItem = event.target
-            let inputBox = replaceTodoAndReturnInput(event)
-            activeEditedNode = inputBox;
-            addClickElsewhereListener()
-
-        }
-        else {
-            console.log("end of todo handle Click event reached")
-        }
-
+      todoListItem = event.target;
+      let inputBox = replaceTodoAndReturnInput(event);
+      activeEditedNode = inputBox;
+      addClickElsewhereListener();
+    } else {
+      console.log("end of todo handle Click event reached");
     }
+  }
 
-    function submitValueAndReplaceListItem(editedInput, oldListItem) {
+  function submitValueAndReplaceListItem(editedInput, oldListItem) {
+    if (!editedInput.parentElement) {
+      return;
+    } else {
+      submitCurrentToDoValue(editedInput);
 
-        if (!(editedInput.parentElement)) {
-            return
-        }
-        else {
-            submitCurrentToDoValue(editedInput)
+      let parent = editedInput.parentElement;
 
-            let parent = editedInput.parentElement;
-    
-            oldListItem.textContent = editedInput.value
-    
-            parent.replaceChild(oldListItem, activeEditedNode)
-        }
+      oldListItem.textContent = editedInput.value;
 
+      parent.replaceChild(oldListItem, activeEditedNode);
     }
+  }
 
-    function addClickElsewhereListener() {
-        document.addEventListener("click", clickElsewhereListener, true)
+  function addClickElsewhereListener() {
+    document.addEventListener("click", clickElsewhereListener, true);
+  }
+
+  function clickElsewhereListener(e) {
+    if (e.target === activeEditedNode) {
+      console.log("clicked target was active edited Node ");
+      return;
+    } else if (isEditable(e.target)) {
+      console.log("clickElsewhere thinks the event target is editable");
+
+      //if its another todo, remove event listener then handle
+
+      handleTodoClick(e);
+    } else {
+      console.log(
+        "click elsewhere listener thinks is going to try to submit the active edited item"
+      );
+
+      submitValueAndReplaceListItem(activeEditedNode, todoListItem);
     }
+  }
 
+  function submitCurrentToDoValue(node) {
+    console.log(node, node.parentElement);
+    let parentProjectPosition = getPosition(
+      node.closest("[data-type=project]")
+    );
+    let todoPosition = getPosition(node.closest("[data-type=todo]"));
+    let itemtype = node.getAttribute("data-itemtype");
+    let currentTodoValue = node.value;
 
-    function clickElsewhereListener(e) {
+    submitNewTodoItem(
+      parentProjectPosition,
+      todoPosition,
+      currentTodoValue,
+      itemtype
+    );
+  }
 
-        if (e.target === activeEditedNode) {
-            console.log("clicked target was active edited Node ")
-            return
-        }
-
-        else if (isEditable(e.target)) { 
-
-            console.log("clickElsewhere thinks the event target is editable")
-
-            //if its another todo, remove event listener then handle 
-
-            handleTodoClick(e)
-        }
-
-        else {
-
-            console.log("click elsewhere listener thinks is going to try to submit the active edited item")
-
-            submitValueAndReplaceListItem(activeEditedNode, todoListItem)
-        }
+  function isEditable(node) {
+    if (node.closest("[data-type=todo]")) {
+      return true;
+    } else {
+      return false;
     }
+  }
 
+  function replaceTodoAndReturnInput(event) {
+    // extract the data-itemtype
+    let itemtype = event.target.getAttribute("data-itemtype");
 
-    function submitCurrentToDoValue(node) {
+    // find the parent node
+    let parent = event.target.parentElement;
 
-        console.log(node, node.parentElement)
-        let parentProjectPosition = getPosition(node.closest("[data-type=project]"))
-        let todoPosition = getPosition(node.closest("[data-type=todo]"))
-        let itemtype = node.getAttribute("data-itemtype")
-        let currentTodoValue = node.value 
+    // create an input of the correct type
+    let tempInput = createInputByType(itemtype);
+    tempInput.setAttribute("value", event.target.innerHTML);
 
-        submitNewTodoItem(parentProjectPosition, todoPosition, currentTodoValue, itemtype)
+    // replace the target element with the new input
+    parent.replaceChild(tempInput, event.target);
 
-    }
+    return tempInput;
+  }
 
-    function isEditable(node) {
+  return {
+    handleTodoClick,
+  };
+})();
 
-        if (node.closest("[data-type=todo]")) {
-            return true 
-        }
-        else {
-            return false 
-        }
-
-    }
-
-    function replaceTodoAndReturnInput(event) {
-        // extract the data-itemtype
-        let itemtype = event.target.getAttribute("data-itemtype")
-    
-        // find the parent node
-        let parent = event.target.parentElement
-    
-        // create an input of the correct type 
-        let tempInput = createInputByType(itemtype)
-        tempInput.setAttribute("value", event.target.innerHTML)
-    
-        // replace the target element with the new input
-        parent.replaceChild(tempInput, event.target)
-
-        return tempInput
-}
-
-    return {
-        handleTodoClick
-    }
-
-})()
-
-// Node creation at ToDo, Project, and Folder (all projects) level 
-
+// Node creation at ToDo, Project, and Folder (all projects) level
 
 function makeToDoItemNode(toDoItem) {
-        let listItem = document.createElement("li")
-        listItem.textContent = toDoItem;
-        listItem.addEventListener("click", clickEditController.handleTodoClick)
-        return listItem
-} 
+  let listItem = document.createElement("li");
+  listItem.textContent = toDoItem;
+  listItem.addEventListener("click", clickEditController.handleTodoClick);
+  return listItem;
+}
 
 function makeToDoObjectNode(toDoObject) {
+  let toDoContainer = document.createElement("div");
 
-    let toDoContainer = document.createElement("div");
-    
-    // this should only append the function to replace each node w/ a click to change 
+  // this should only append the function to replace each node w/ a click to change
 
-    for (let key in toDoObject) {
-
-        if (key === "pos") continue;
-
-        // else if (key === "priority") {
-        //     let listItem = makeToDoItemNode(toDoObject[key])
-        //     listItem.setAttribute("data-itemtype", key)
-        //     toDoContainer.appendChild(listItem)
-        // }
-
-        else {
-            let listItem = makeToDoItemNode(toDoObject[key])
-            listItem.setAttribute("data-itemtype", key)
-            toDoContainer.appendChild(listItem)
-        }
-        
+  for (let key in toDoObject) {
+    if (key === "pos") continue;
+    else {
+      let listItem = makeToDoItemNode(toDoObject[key]);
+      listItem.setAttribute("data-itemtype", key);
+      toDoContainer.appendChild(listItem);
     }
+  }
 
-    addButtonByType(toDoContainer, "Delete", deleteEvent)
-    setPositionDataAttribute(toDoContainer, toDoObject)
-    setContainerType(toDoContainer, "todo")
+  addButtonByType(toDoContainer, "Delete", deleteEvent);
+  setPositionDataAttribute(toDoContainer, toDoObject);
+  setContainerType(toDoContainer, "todo");
 
-    return toDoContainer
+  return toDoContainer;
 }
 
 function makeToDoObjectsFromArray(listArray) {
-    let nodes = listArray.map(makeToDoObjectNode)
-    return nodes 
+  let nodes = listArray.map(makeToDoObjectNode);
+  return nodes;
 }
 
 function makeProjectNode(project) {
+  let projectNode = document.createElement("div");
 
-    let projectNode = document.createElement("div");
+  let title = document.createElement("h1");
+  title.textContent = project["title"];
+  projectNode.appendChild(title);
 
-    let title = document.createElement("h1")
-    title.textContent = project["title"]
-    projectNode.appendChild(title)
+  let description = document.createElement("h2");
+  description.textContent = project["description"];
+  projectNode.appendChild(description);
 
-    let description = document.createElement("h2")
-    description.textContent = project["description"]
-    projectNode.appendChild(description)
+  addButtonByType(projectNode, "Delete", deleteEvent);
+  addButtonByType(projectNode, "Add ToDo", displayAddTodoForm);
 
-    addButtonByType(projectNode, "Delete", deleteEvent)
-    addButtonByType(projectNode, "Add ToDo", displayAddTodoForm)
+  setPositionDataAttribute(projectNode, project);
+  setContainerType(projectNode, "project");
 
-    setPositionDataAttribute(projectNode, project)
-    setContainerType(projectNode, "project")
+  let toDoArray = project.returnList();
+  let toDoNodes = makeToDoObjectsFromArray(toDoArray);
+  toDoNodes.forEach((node) => projectNode.appendChild(node));
 
-    // let number = document.createElement("h3")
-    // number.textContent = project["pos"]
-    // projectNode.appendChild(number)
-    
-    let toDoArray = project.returnList()
-    let toDoNodes = makeToDoObjectsFromArray(toDoArray)
-    toDoNodes.forEach(node => projectNode.appendChild(node))
-
-    return projectNode
+  return projectNode;
 }
 
 function makeProjectsFolder(arrayOfProjects) {
-    let folder = document.createElement("div")
-    let arrayOfProjectNodes = arrayOfProjects.map(project => makeProjectNode(project))
-    arrayOfProjectNodes.forEach(node => folder.appendChild(node))
-    return folder 
+  let folder = document.createElement("div");
+  let arrayOfProjectNodes = arrayOfProjects.map((project) =>
+    makeProjectNode(project)
+  );
+  arrayOfProjectNodes.forEach((node) => folder.appendChild(node));
+  return folder;
 }
 
 //navbar functions
 
 function makeNavbar(arrayOfProjects) {
-    let nav = document.createElement("nav") 
-    arrayOfProjects.forEach(item => nav.appendChild(makeNavItem(item)))
+  let nav = document.createElement("nav");
+  arrayOfProjects.forEach((item) => nav.appendChild(makeNavItem(item)));
 
-    addButtonByType(nav, "Add Project", displayAddProjectForm)
-    addButtonByType(nav, "Display All Projects", logContentChange)
+  addButtonByType(nav, "Add Project", displayAddProjectForm);
+  addButtonByType(nav, "Display All Projects", logContentChange);
 
-    return nav;
+  return nav;
 }
 
 function makeNavItem(project) {
-    let proj = document.createElement("div")
-    proj.innerText = project["title"]
-    setPositionDataAttribute(proj, project)
-    proj.addEventListener("click", displayProject)
-    return proj
+  let proj = document.createElement("div");
+  proj.innerText = project["title"];
+  setPositionDataAttribute(proj, project);
+  proj.addEventListener("click", displayProject);
+  return proj;
 }
 
-//page rendering functions 
+//page rendering functions
 
 function removeAllNodes(container) {
-    while (container.hasChildNodes()) {
-        container.removeChild(container.firstChild)
-    }
+  while (container.hasChildNodes()) {
+    container.removeChild(container.firstChild);
+  }
 }
 
 function displayProject(event) {
-    let node = event.target;
-    let position = getPosition(node)
-    let activeProject = firstFolder.returnProjectFromIndex(position)
-    renderSingleProject(activeProject)
+  let node = event.target;
+  let position = getPosition(node);
+  let activeProject = firstFolder.returnProjectFromIndex(position);
+  renderSingleProject(activeProject);
 }
 
 function renderSingleProject(project) {
-    let projectNode = makeProjectNode(project)  
-    removeAllNodes(projectContainer)
-    projectContainer.appendChild(projectNode)
+  let projectNode = makeProjectNode(project);
+  removeAllNodes(projectContainer);
+  projectContainer.appendChild(projectNode);
 }
 
 function renderProjects(arrayOfProjects, container) {
-    let allProjectNodes = makeProjectsFolder(arrayOfProjects);
-    container.appendChild(allProjectNodes)
+  let allProjectNodes = makeProjectsFolder(arrayOfProjects);
+  container.appendChild(allProjectNodes);
 }
 
 function renderNavAndProjects(arrayOfProjects) {
-    removeAllNodes(projectContainer);
-    removeAllNodes(navContainer)
-    let nav = makeNavbar(arrayOfProjects);
-    navContainer.appendChild(nav)
-    renderProjects(arrayOfProjects, projectContainer)
+  removeAllNodes(projectContainer);
+  removeAllNodes(navContainer);
+  let nav = makeNavbar(arrayOfProjects);
+  navContainer.appendChild(nav);
+  renderProjects(arrayOfProjects, projectContainer);
 }
 
-// returning data attributes. This functionality mainly happens in overview / firstFolder object, 
-// but also for displaying single projects. 
+// returning data attributes. This functionality mainly happens in overview / firstFolder object,
+// but also for displaying single projects.
 
 function getPosition(node) {
-    return node.getAttribute("data-pos")
+  return node.getAttribute("data-pos");
 }
 
 function getType(node) {
-    return node.getAttribute("data-type")
+  return node.getAttribute("data-type");
 }
 
 function returnParentProjectNode(event) {
-    let projectNode = event.target.closest("[data-type=project]")
-    return projectNode
+  let projectNode = event.target.closest("[data-type=project]");
+  return projectNode;
 }
 
 function returnTodoNode(event) {
-        let todoNode = event.target.closest("[data-type=todo]")
-        return todoNode
+  let todoNode = event.target.closest("[data-type=todo]");
+  return todoNode;
 }
 
 function submitNewTodoItem(parentPos, todoPos, newValue, type) {
-    firstFolder.editTodoItem(parentPos, todoPos, newValue, type)
+  firstFolder.editTodoItem(parentPos, todoPos, newValue, type);
 }
 
 // CSS functions
 
 function toggleNavHighlight(node) {
-    node.classList.toggle('selectedProject')
+  node.classList.toggle("selectedProject");
 }
 
-function toggleFormView() {
+function toggleFormView() {}
 
-}
-
-// buttons & click functions 
+// buttons & click functions
 
 function addButtonByType(containerNode, buttonText, clickFunction) {
-    let button = document.createElement("button")
-    button.innerText = buttonText;
-    containerNode.appendChild(button)
-    button.addEventListener("click", clickFunction)
+  let button = document.createElement("button");
+  button.innerText = buttonText;
+  containerNode.appendChild(button);
+  button.addEventListener("click", clickFunction);
 }
 
-//event listener button functions 
+//event listener button functions
 
 function deleteEvent(event) {
+  // delete button should always be a direct child of either a project or todo container
+  //labelled with type and position in the larger array
+  // so this should send back the container node
 
-    // delete button should always be a direct child of either a project or todo container
-    //labelled with type and position in the larger array
-    // so this should send back the container node
+  let containerDiv = event.target.parentElement;
 
-    let containerDiv = event.target.parentElement;
+  firstFolder.deleteEntry(containerDiv);
 
-    firstFolder.deleteEntry(containerDiv)
-    
-    logContentChange()
+  logContentChange();
 }
 
 function addProject(event) {
+  event.preventDefault();
 
-    event.preventDefault()
+  let form = event.target.parentElement;
 
-    let form = event.target.parentElement
+  let array = getFormValues(form);
 
-    let array = getFormValues(form)
+  let title, description;
+  [title, description] = [...array];
 
-    let title, description
-    [title, description] = [...array]
+  // dependent on knowing a lot about how the objects are made. Positional dependency
 
-    // dependent on knowing a lot about how the objects are made. Positional dependency 
+  let project = makeProject(title, description);
+  firstFolder.addProjectToList(project);
 
-    let project = makeProject(title, description)
-    firstFolder.addProjectToList(project)
-
-    logContentChange()
+  logContentChange();
 }
 
 function addTodo(event) {
-    event.preventDefault()
+  event.preventDefault();
 
-    let projectNode = returnParentProjectNode(event)
-    let index = getPosition(projectNode)
+  let projectNode = returnParentProjectNode(event);
+  let index = getPosition(projectNode);
 
-    let form = event.target.parentElement
-    let valuesArray = getFormValues(form)
+  let form = event.target.parentElement;
+  let valuesArray = getFormValues(form);
 
-    let title, description, duedate, priority, notes
-    [title, description, duedate, priority, notes] = [...valuesArray]
+  let title, description, duedate, priority, notes;
+  [title, description, duedate, priority, notes] = [...valuesArray];
 
-    let projectObject = firstFolder.returnProjectFromIndex(index)
+  let projectObject = firstFolder.returnProjectFromIndex(index);
 
-    let todo = todoFactory(title, description, duedate, priority, notes)
+  let todo = todoFactory(title, description, duedate, priority, notes);
 
+  projectObject.addItemToProject(todo);
 
-    projectObject.addItemToProject(todo)
-
-    //this is causing a adding a single todo to a single project view to add then re-render whole lsit 
-
-    logContentChange()
-
+  logContentChange();
 }
 
+//Project form functions
 
-//Project form functions 
+function displayAddProjectForm() {
+  // create form node inclduing add project button
+  let formNode = createAddProjectForm();
 
-function displayAddProjectForm(event) {
- 
-    // create form node inclduing add project button 
-    let formNode = createAddProjectForm()
+  // add unseen class
 
-    // add unseen class 
+  // append the node to the body
+  navContainer.appendChild(formNode);
 
-    // append the node to the body 
-    navContainer.appendChild(formNode)
-
-    // toggle the unseen class
+  // toggle the unseen class
 }
 
 function createAddProjectForm() {
-    let form = document.createElement("form")
-    form.setAttribute("name", "project-inputs")
+  let form = document.createElement("form");
+  form.setAttribute("name", "project-inputs");
 
-    let inputs = ["title", "description"]
+  let inputs = ["title", "description"];
 
-    inputs.forEach(input => {
-        form.appendChild(createInputByType(input))
-    })
+  inputs.forEach((input) => {
+    form.appendChild(createInputByType(input));
+  });
 
-    // add button that connects to add Project 
+  // add button that connects to add Project
 
-    addButtonByType(form, "Submit", addProject)
+  addButtonByType(form, "Submit", addProject);
 
-    return form 
+  return form;
 }
 
-//Todo form functions 
+//Todo form functions
 
 function createAddTodoForm() {
-    let form = document.createElement("form")
-    form.setAttribute("name", "todo-inputs")
+  let form = document.createElement("form");
+  form.setAttribute("name", "todo-inputs");
 
-    let fields = ["title", "description", "duedate", "priority", "notes"]
+  let fields = ["title", "description", "duedate", "priority", "notes"];
 
-    fields.forEach(field => {
-        let inputNode = createInputByType(field)
-        form.appendChild(inputNode)
-    })
+  fields.forEach((field) => {
+    let inputNode = createInputByType(field);
+    form.appendChild(inputNode);
+  });
 
-    // add button that connects to add Project 
+  // add button that connects to add Project
 
-    addButtonByType(form, "Submit", addTodo)
+  addButtonByType(form, "Submit", addTodo);
 
-    return form 
+  return form;
 }
 
 function displayAddTodoForm(event) {
-    let formNode = createAddTodoForm()
+  let formNode = createAddTodoForm();
 
-    let projectContainer = returnParentProjectNode(event)
+  let projectContainer = returnParentProjectNode(event);
 
-    projectContainer.appendChild(formNode)
+  projectContainer.appendChild(formNode);
 }
 
-
-// utility form functions 
+// utility form functions
 
 function createInputByType(type) {
+  if ((type === "title") | (type === "description") | (type === "notes")) {
+    let input = document.createElement("input");
+    input.setAttribute("data-itemtype", type);
+    input.setAttribute("type", "text");
+    input.setAttribute("placeholder", type);
+    input.setAttribute("value", "");
+    input.setAttribute("name", "project-inputs");
+    return input;
+  } else if (type === "duedate") {
+    let input = document.createElement("input");
+    input.setAttribute("data-itemtype", type);
+    input.setAttribute("type", "date");
+    input.setAttribute("value", "");
+    input.setAttribute("name", "project-inputs");
+    return input;
+  } else if (type === "priority") {
+    let selector = document.createElement("select");
+    selector.setAttribute("data-itemtype", type);
+    selector.setAttribute("name", "priorities");
+    selector.setAttribute("id", "priorities");
 
-    if (type === "title" | type === "description" | type === "notes") {
-        let input = document.createElement("input")
-        input.setAttribute("data-itemtype", type)
-        input.setAttribute("type", "text")
-        input.setAttribute("placeholder", type)
-        input.setAttribute("value", "")
-        input.setAttribute("name", "project-inputs")
-        return input 
-    }
-
-    else if (type === "duedate") {
-        let input = document.createElement("input")
-        input.setAttribute("data-itemtype", type)
-        input.setAttribute("type", "date")
-        input.setAttribute("value", "")
-        input.setAttribute("name", "project-inputs")
-        return input
-    }
-
-    else if (type === "priority") {
-        let selector = document.createElement("select")
-        selector.setAttribute("data-itemtype", type)
-        selector.setAttribute("name", "priorities")
-        selector.setAttribute("id", "priorities")
-
-        priorities.forEach(level => {
-                let option = document.createElement("option");
-                option.setAttribute("value", level)
-                option.textContent = level
-                selector.appendChild(option)
-            })
-        return selector; 
-        }
-
-    else {
-        console.log('invalid input type')
-    }
-    
+    priorities.forEach((level) => {
+      let option = document.createElement("option");
+      option.setAttribute("value", level);
+      option.textContent = level;
+      selector.appendChild(option);
+    });
+    return selector;
+  } else {
+    console.log("invalid input type");
+  }
 }
 
 function getFormValues(formNode) {
-    let childNodes = Array.from(formNode.childNodes)
-    return childNodes.reduce((acc, ele) => {
-            if(ele.value) {
-                acc.push(ele.value)
-            }
-            return acc
-        }, [])
-
+  let childNodes = Array.from(formNode.childNodes);
+  return childNodes.reduce((acc, ele) => {
+    if (ele.value) {
+      acc.push(ele.value);
+    }
+    return acc;
+  }, []);
 }
 
-
-
-export { makeProjectNode, 
-        makeProjectsFolder, 
-        makeToDoObjectsFromArray, 
-        renderProjects, 
-        makeNavItem, 
-        renderNavAndProjects,
-    }
+export {
+  makeProjectNode,
+  makeProjectsFolder,
+  makeToDoObjectsFromArray,
+  renderProjects,
+  makeNavItem,
+  renderNavAndProjects,
+};
