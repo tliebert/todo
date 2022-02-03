@@ -200,6 +200,8 @@ function makeNavbar(arrayOfProjects) {
   addButtonByType(nav, "Add Project", displayAddProjectForm);
   addButtonByType(nav, "Display All Projects", logContentChange);
 
+  nav.classList.add("navBar")
+
   return nav;
 }
 
@@ -208,6 +210,9 @@ function makeNavItem(project) {
   proj.innerText = project["title"];
   setPositionDataAttribute(proj, project);
   proj.addEventListener("click", displayProject);
+
+  proj.classList.add("navItem")
+
   return proj;
 }
 
@@ -219,11 +224,33 @@ function removeAllNodes(container) {
   }
 }
 
+// active monitor 
+
+let activeMonitor = {
+  activeProject: false,
+  get active() {return this.activeProject},
+  set active(project) {this.activeProject = project},
+  resetActive: function() {this.activeProject = false} 
+}
+
 function displayProject(event) {
+  if (activeMonitor.active) {
+    activeMonitor.resetActive;
+  }
+
+  let navNodes = document.querySelectorAll(".navItem")
+  navNodes.forEach((node) => {node.classList.remove('activeNavItem')})
+  
   let node = event.target;
+
   let position = getPosition(node);
   let activeProject = firstFolder.returnProjectFromIndex(position);
+
+  activeMonitor.active = activeProject;
+
   renderSingleProject(activeProject);
+
+  node.classList.add("activeNavItem")
 }
 
 function renderSingleProject(project) {
@@ -302,7 +329,7 @@ function deleteEvent(event) {
 }
 
 function addProject(event) {
-  event.preventDefault();
+  //event.preventDefault();
 
   let form = event.target.parentElement;
 
@@ -337,7 +364,10 @@ function addTodo(event) {
 
   projectObject.addItemToProject(todo);
 
-  logContentChange();
+  if (activeMonitor.active) {
+    renderSingleProject(activeMonitor.active)
+  }
+  else {logContentChange()};
 }
 
 //Project form functions

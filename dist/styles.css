@@ -1,0 +1,24 @@
+* {
+    box-sizing: border-box;
+}
+
+.navBar {
+    display: flex;
+    border: 1px solid tomato; 
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.navItem {
+    display: flex; 
+    border: 1px solid aqua ;
+
+}
+
+.activeNavItem {
+    background: red;
+}
+
+[data-type="project"] {
+    border: 1px solid blue;
+}

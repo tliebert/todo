@@ -1,4 +1,4 @@
-import { addPositionProperty, logContentChange } from "./index.js";
+import { addPositionProperty } from "./index.js";
 
 const projectsFolder = function () {
   let projectsList = [];
